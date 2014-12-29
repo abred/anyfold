@@ -1,2 +1,3 @@
 
 add_test(NAME test_cpu_convolve COMMAND test_cpu_convolve)
+add_test(NAME test_gpu_convolve COMMAND test_gpu_convolve)
