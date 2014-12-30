@@ -36,7 +36,7 @@ namespace anyfold {
   
   }
 
-std::ostream& operator<<(std::ostream& _cout, const image_stack& _marray){
+inline std::ostream& operator<<(std::ostream& _cout, const image_stack& _marray){
 
   if(image_stack::dimensionality!=3){
     _cout << "dim!=3\n";

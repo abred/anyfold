@@ -10,6 +10,12 @@
 	#include "CL/cl.h"
 #endif
 
+#include "image_stack_utils.h"
+
+namespace anyfold {
+
+namespace gpu {
+
 class Convolution3DCL
 {
 public:
@@ -17,8 +23,14 @@ public:
 	~Convolution3DCL() = default;
 
 	bool setupCLcontext();
-	void createProgramAndLoadKernel(const char* fileName, const char* kernelName);
-	void convolve3D(/* something image3D, something filterkernel3D */);
+	void createProgramAndLoadKernel(const char* fileName,
+	                                const char* kernelName);
+	void setupKernelArgs(image_stack_cref _image,
+	                     image_stack_cref _kernel,
+	                     const std::vector<int>& _offset);
+	void execute();
+	void getResult(image_stack_ref result);
+	// void convolve3D(/* something image3D, something filterkernel3D */);
 
 
 private:
@@ -27,7 +39,8 @@ private:
 	void* getDeviceInfo(cl_device_id id, cl_device_info info);
 	std::string getDeviceName(cl_device_id id);
 	std::string getPlatformInfo(cl_platform_id id, cl_platform_info info);
-	void checkError(cl_int status, const char* label, const char* file, int line);
+	void checkError(cl_int status, const char* label,
+	                const char* file, int line);
 
 
 private:
@@ -37,9 +50,18 @@ private:
 
 	cl_program program;
 	cl_kernel kernel;
+	cl_command_queue queue;
 
 	cl_int status = CL_SUCCESS;
+
+	cl_mem inputImage;
+	cl_mem outputImage;
+	cl_mem filterWeightsBuffer;
+	std::size_t size[3];
+
 };
 
+} /* namespace gpu */
+} /* namespace anyfold */
 
 #endif /* CONVOLUTION3DCL_HPP */

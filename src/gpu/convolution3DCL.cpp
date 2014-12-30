@@ -1,7 +1,11 @@
-#include "gpu/convolution3DCL.hpp"
-
 #include <iostream>
 #include <fstream>
+
+#include "gpu/convolution3DCL.hpp"
+
+namespace anyfold {
+
+namespace gpu {
 
 #define CHECK_ERROR(status, fctname) { \
 	checkError(status, fctname, __FILE__, __LINE__ -1); \
@@ -110,57 +114,57 @@ bool Convolution3DCL::setupCLcontext()
 	cl_uint platformCount = 0;
 	clGetPlatformIDs(0, nullptr, &platformCount);
 
-	if (platformCount == 0)
-	{
-		std::cerr << "No OpenCL platform found" << std::endl;
-		return false;
-	}
-	else
-	{
-		std::cout << "Found " << platformCount << " platform(s)" << std::endl;
-	}
+	// if (platformCount == 0)
+	// {
+	// 	std::cerr << "No OpenCL platform found" << std::endl;
+	// 	return false;
+	// }
+	// else
+	// {
+	// 	std::cout << "Found " << platformCount << " platform(s)" << std::endl;
+	// }
 
 	platforms.resize(platformCount);
 	clGetPlatformIDs(platformCount, platforms.data(), nullptr);
 
-	for (cl_uint i = 0; i < platformCount; ++i)
-	{
-		std::cout << "\t (" << (i+1) << ") : "
-		          << getPlatformInfo(platforms[i], CL_PLATFORM_NAME)
-		          << "\n\tExtensions: \n"
-		          << "\t" << getPlatformInfo(platforms[i], CL_PLATFORM_EXTENSIONS)
-		          << std::endl;
-	}
-	std::cout << "Platform (1) chosen" << std::endl;
+	// for (cl_uint i = 0; i < platformCount; ++i)
+	// {
+	// 	std::cout << "\t (" << (i+1) << ") : "
+	// 	          << getPlatformInfo(platforms[i], CL_PLATFORM_NAME)
+	// 	          << "\n\tExtensions: \n"
+	// 	          << "\t" << getPlatformInfo(platforms[i], CL_PLATFORM_EXTENSIONS)
+	// 	          << std::endl;
+	// }
+	// std::cout << "Platform (1) chosen" << std::endl;
 
 	cl_uint deviceCount = 0;
 	status = clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_ALL, 0, nullptr,
 	                         &deviceCount);
 	CHECK_ERROR(status, "clGetDeviceIDs");
 
-	if (deviceCount == 0)
-	{
-		std::cerr << "No OpenCL device found" << std::endl;
-		return false;
-	}
-	else
-	{
-		std::cout << "Found " << deviceCount << " device(s)" << std::endl;
-	}
+	// if (deviceCount == 0)
+	// {
+	// 	std::cerr << "No OpenCL device found" << std::endl;
+	// 	return false;
+	// }
+	// else
+	// {
+	// 	std::cout << "Found " << deviceCount << " device(s)" << std::endl;
+	// }
 
 	devices.resize(deviceCount);
 	status = clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_ALL, deviceCount,
 	               devices.data(), nullptr);
 	CHECK_ERROR(status, "clGetDeviceIDs");
 
-	for (cl_uint i = 0; i < deviceCount; ++i) {
-		std::cout << "\t (" << (i+1) << ") : " << getDeviceName(devices[i])
-		          << "\n\tExtensions: \n";
-		char* str = (char*)getDeviceInfo(devices[i], CL_DEVICE_EXTENSIONS);
-		std::cout << "\t" << str << std::endl << std::endl;
-		free(str);
-	}
-	std::cout << "Device (1) chosen" << std::endl;
+	// for (cl_uint i = 0; i < deviceCount; ++i) {
+	// 	std::cout << "\t (" << (i+1) << ") : " << getDeviceName(devices[i])
+	// 	          << "\n\tExtensions: \n";
+	// 	char* str = (char*)getDeviceInfo(devices[i], CL_DEVICE_EXTENSIONS);
+	// 	std::cout << "\t" << str << std::endl << std::endl;
+	// 	free(str);
+	// }
+	// std::cout << "Device (1) chosen" << std::endl;
 
 	const cl_context_properties contextProperties [] =
 	{
@@ -173,10 +177,83 @@ bool Convolution3DCL::setupCLcontext()
 	                                     devices.data(), errorCallback, nullptr, &status);
 	CHECK_ERROR(status, "clCreateContext");
 
-	std::cout << "Context created" << std::endl;
+	// std::cout << "Context created" << std::endl;
+
+	queue = clCreateCommandQueue(context, devices[0],
+	                             0, &status);
+	CHECK_ERROR(status, "clCreateCommandQueue");
+
 	return true;
 }
 
+void Convolution3DCL::setupKernelArgs(image_stack_cref image,
+                                      image_stack_cref filterKernel,
+                                      const std::vector<int>& offset)
+{
+	size[0] = image.shape()[0];
+	size[1] = image.shape()[1];
+	size[2] = image.shape()[2];
+	// std::cout << size[0] << " " << size[1] << " " << size[2] << std::endl;
+	// for(int i = 0; i < 10; i++){
+	// 	for(int j = 0; j < 10; j++){
+	// 		for(int k = 0; k < 10; k++){
+	// 			std::cout << image.data()[i*100+j*10+k] << " ";
+	// 		}std::cout << std::endl;
+	// 	}std::cout << std::endl;
+	// }std::cout << std::endl;
+
+	// const cl_image_format format = { CL_R, CL_UNORM_INT8 };
+	const cl_image_format format = { CL_R, CL_FLOAT };
+	inputImage = clCreateImage3D(context,
+	                             CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+	                             &format,
+	                             size[0], size[1], size[2],
+	                             0, 0, const_cast<float*>(image.data()), &status);
+	CHECK_ERROR(status, "clCreateImage3D");
+
+	outputImage = clCreateImage3D(context, CL_MEM_WRITE_ONLY, &format,
+	                              size[0], size[1], size[2],
+	                              0, 0, nullptr, &status);
+	CHECK_ERROR(status, "clCreateImage3D");
+
+	filterWeightsBuffer = clCreateBuffer(context,
+	                                     CL_MEM_READ_ONLY |
+	                                     CL_MEM_COPY_HOST_PTR,
+	                                     sizeof(float) * filterKernel.num_elements(),
+	                                     const_cast<float*>(filterKernel.data()), &status);
+	CHECK_ERROR(status, "clCreateBuffer");
+
+	clSetKernelArg(kernel, 0, sizeof(cl_mem), &inputImage);
+	clSetKernelArg(kernel, 1, sizeof(cl_mem), &filterWeightsBuffer);
+	clSetKernelArg(kernel, 2, sizeof(cl_mem), &outputImage);
+}
+
+void Convolution3DCL::execute()
+{
+	status = clEnqueueNDRangeKernel(queue, kernel, 3, nullptr, size, nullptr,
+	                                 0, nullptr, nullptr);
+	CHECK_ERROR(status, "clEnqueueNDRangeKernel");
+}
+
+void Convolution3DCL::getResult(image_stack_ref result)
+{
+	std::size_t origin [3] = {0, 0, 0};
+	std::size_t region [3] = {result.shape()[0],
+	                          result.shape()[1],
+	                          result.shape()[2]};
+	clEnqueueReadImage(queue, outputImage, CL_TRUE,
+	                   origin, region, 0, 0,
+	                   result.data(), 0, nullptr, nullptr);
+
+	// std::cout << region[0] << " " << region[1] << " " << region[2] << std::endl;
+	// for(int i = 0; i < 10; i++){
+	// 	for(int j = 0; j < 10; j++){
+	// 		for(int k = 0; k < 10; k++){
+	// 			std::cout << result.data()[i*100+j*10+k] << " ";
+	// 		}std::cout << std::endl;
+	// 	}std::cout << std::endl;
+	// }std::cout << std::endl;
+}
 
 void Convolution3DCL::checkError(cl_int status, const char* label, const char* file, int line)
 {
@@ -323,3 +400,6 @@ void Convolution3DCL::checkError(cl_int status, const char* label, const char* f
 	}
 	exit(status);
 }
+
+} /* namespace gpu */
+} /* namespace anyfold */
