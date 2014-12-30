@@ -112,20 +112,6 @@ BOOST_AUTO_TEST_CASE( depth_convolve )
 				       padded_image_folded_by_depth_.data() + padded_image_folded_by_depth_.num_elements(),
 				       0.f);
 
-  for(int i = 0; i < 10; i++){
-	  for(int j = 0; j < 10; j++){
-		  for(int k = 0; k < 10; k++){
-			  std::cout << padded_image_folded_by_depth_.data()[i*100+j*10+k] << " ";
-		  }std::cout << std::endl;
-	  }std::cout << std::endl;
-
-	  for(int j = 0; j < 10; j++){
-		  for(int k = 0; k < 10; k++){
-			  std::cout << padded_output_.data()[i*100+j*10+k] << " ";
-		  }std::cout << std::endl;
-	  }std::cout << std::endl;
-  }std::cout << std::endl;
-
   BOOST_REQUIRE_CLOSE(sum, sum_expected, .00001f);
   float l2norm = anyfold::l2norm(padded_output_.data(), padded_image_folded_by_depth_.data(),  padded_output_.num_elements());
   BOOST_REQUIRE_CLOSE(l2norm, 0, .00001);

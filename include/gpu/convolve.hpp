@@ -17,7 +17,8 @@ void convolve(image_stack_cref image,
 {
 	Convolution3DCL c;
 	c.setupCLcontext();
-	c.createProgramAndLoadKernel("convolution3d.cl", "convolution3d");
+	std::string loc = std::string(PROJECT_ROOT_DIR) + std::string("/src/gpu/convolution3d.cl");
+	c.createProgramAndLoadKernel(loc.c_str(), "convolution3d");
 	c.setupKernelArgs(image, kernel, offset);
 	c.execute();
 	c.getResult(result);
