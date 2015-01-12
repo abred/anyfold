@@ -59,12 +59,12 @@ MESSAGE(">> Setting up ${CMAKE_BUILD_TYPE} build")
 
 #C/C++ specific flags
 IF(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUCC)
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g -ggdb ")
+  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g -ggdb -std=c++11")
   SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -g -ggdb ")
 ENDIF(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUCC)
  
 IF("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g -ggdb ")
+  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g -ggdb -std=c++11")
   SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -g -ggdb ")
 ENDIF()
 
@@ -73,7 +73,7 @@ check_cxx_compiler_flag(-ftree-vectorize HAS_GCC_TREE_VECTORIZE_COMPILERFLAG)
 check_cxx_compiler_flag(-march=native HAS_MARCH_COMPILERFLAG)
 check_cxx_compiler_flag(-ffast-math HAS_FAST_MATH_COMPILERFLAG)
 
-SET(HOST_COMPILER_RELEASE_FLAGS "-Wall -O3")
+SET(HOST_COMPILER_RELEASE_FLAGS "-Wall -O3 -std=c++11")
 IF(HAS_CLANG_VECTORIZE_COMPILERFLAG)
   SET(HOST_COMPILER_RELEASE_FLAGS "${HOST_COMPILER_RELEASE_FLAGS} -fvectorize")
 ENDIF()
@@ -127,5 +127,20 @@ install(FILES
   DESTINATION "${INSTALL_SHARE_DIR}" COMPONENT dev)
 
 
+option(BUILD_OPENCL_ANYFOLD "build anyfold with opencl" true)
 
+if(BUILD_OPENCL_ANYFOLD)
+  set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
 
+  find_package( OpenCL REQUIRED )
+
+  include_directories( ${OPENCL_INCLUDE_DIRS} )
+  
+  if( OPENCL_HAS_CPP_BINDINGS )
+	  message( "OpenCL has CPP bindings. Full include is: " ${OPENCL_INCLUDE_DIRS} )
+  else( OPENCL_HAS_CPP_BINDINGS )
+	  message( "No OpenCL CPP bindings found" )
+  endif( OPENCL_HAS_CPP_BINDINGS )
+  
+  add_definitions( -DUSE_OPENCL )
+endif(BUILD_OPENCL_ANYFOLD)
