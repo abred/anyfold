@@ -2,7 +2,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 # project name
-PROJECT(anyfold CXX)
+PROJECT(anyfold CXX C)
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
  
@@ -60,6 +60,7 @@ MESSAGE(">> Setting up ${CMAKE_BUILD_TYPE} build")
 #C/C++ specific flags
 IF(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUCC)
   SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g -ggdb -std=c++11")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -std=c++11 ")
   SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -g -ggdb ")
 ENDIF(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUCC)
  
@@ -94,6 +95,7 @@ SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${HOST_COMPILER_RELEASE_
 SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${HOST_COMPILER_RELEASE_FLAGS} ")
 MESSAGE(">> using release build flags: ${HOST_COMPILER_RELEASE_FLAGS}")
 
+ADD_SUBDIRECTORY(src)
 
 FIND_PACKAGE (Boost 1.42 COMPONENTS system filesystem unit_test_framework thread REQUIRED)
 IF(Boost_FOUND)
@@ -130,9 +132,13 @@ install(FILES
 option(BUILD_OPENCL_ANYFOLD "build anyfold with opencl" true)
 
 if(BUILD_OPENCL_ANYFOLD)
-  set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
-
-  find_package( OpenCL REQUIRED )
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+  
+  find_package (OpenCL REQUIRED)
+  
+  IF(OpenCL_FOUND)
+    ADD_DEFINITIONS(-DHAS_OPENCL -DPROJECT_ROOT_DIR="${CMAKE_SOURCE_DIR}")
+  ENDIF(OpenCL_FOUND)
 
   include_directories( ${OPENCL_INCLUDE_DIRS} )
   
@@ -142,5 +148,4 @@ if(BUILD_OPENCL_ANYFOLD)
 	  message( "No OpenCL CPP bindings found" )
   endif( OPENCL_HAS_CPP_BINDINGS )
   
-  add_definitions( -DUSE_OPENCL )
 endif(BUILD_OPENCL_ANYFOLD)

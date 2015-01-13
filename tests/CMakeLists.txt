@@ -10,8 +10,8 @@ ENDIF()
 # gather all needed link libraries
 set (TARGET_LINK_LIBRARIES boost_system boost_filesystem boost_unit_test_framework)
 if(BUILD_OPENCL_ANYFOLD)
-  add_definitions( -DUSE_OPENCL )
-  set(TARGET_LINK_LIBRARIES ${TARGET_LINK_LIBRARIES} ${OPENCL_LIBRARIES})
+  add_definitions( -DHAS_OPENCL -DPROJECT_ROOT_DIR="${CMAKE_SOURCE_DIR}")
+  set(TARGET_LINK_LIBRARIES ${TARGET_LINK_LIBRARIES} ${OPENCL_LIBRARIES} anyfold)
 endif(BUILD_OPENCL_ANYFOLD)
 
 # test for cpu version
@@ -24,4 +24,9 @@ if(BUILD_OPENCL_ANYFOLD)
   add_executable(test_opencl_convolve test_opencl_convolve.cpp)
   target_link_libraries(test_opencl_convolve ${TARGET_LINK_LIBRARIES})
   set_target_properties(test_opencl_convolve PROPERTIES COMPILE_FLAGS "-I${PROJECT_SOURCE_DIR}/include")
+  
+  add_executable(test_gpu_convolve test_gpu_convolve.cpp)
+  target_link_libraries(test_gpu_convolve ${TARGET_LINK_LIBRARIES})
+  set_target_properties(test_gpu_convolve PROPERTIES COMPILE_FLAGS "-I${PROJECT_SOURCE_DIR}/include")
 endif(BUILD_OPENCL_ANYFOLD)
+

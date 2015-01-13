@@ -1,5 +1,5 @@
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE CPU_CONVOLUTION
+#define BOOST_TEST_MODULE GPU_CONVOLUTION
 #include "boost/test/unit_test.hpp"
 #include "test_fixtures.hpp"
 #include <numeric>
@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE( trivial_convolve )
   float* kernel = new float[kernel_size_];
   std::fill(kernel, kernel+kernel_size_,0.f);
 
-  anyfold::cpu::convolve_3d(image, &padded_image_shape_[0],
+  anyfold::gpu::convolve_3d(image, &padded_image_shape_[0],
 			    kernel,&kernel_dims_[0],
 			    padded_output_.data());
 
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( identity_convolve )
 				       padded_image_.data() + padded_image_.num_elements(),
 				       0.f);
 
-  anyfold::cpu::convolve_3d(padded_image_.data(),(int*)&padded_image_shape_[0],
+  anyfold::gpu::convolve_3d(padded_image_.data(),(int*)&padded_image_shape_[0],
                             identity_kernel_.data(),&kernel_dims_[0],
                             padded_output_.data());
 
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( horizontal_convolve )
 {
 
 
-  anyfold::cpu::convolve_3d(padded_image_.data(),(int*)&padded_image_shape_[0],
+  anyfold::gpu::convolve_3d(padded_image_.data(),(int*)&padded_image_shape_[0],
 			    horizontal_kernel_.data(),&kernel_dims_[0],
 			    padded_output_.data());
 
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( vertical_convolve )
 {
 
 
-  anyfold::cpu::convolve_3d(padded_image_.data(),(int*)&padded_image_shape_[0],
+  anyfold::gpu::convolve_3d(padded_image_.data(),(int*)&padded_image_shape_[0],
 			    vertical_kernel_.data(),&kernel_dims_[0],
 			    padded_output_.data());
 
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE( depth_convolve )
 {
 
 
-  anyfold::cpu::convolve_3d(padded_image_.data(),(int*)&padded_image_shape_[0],
+  anyfold::gpu::convolve_3d(padded_image_.data(),(int*)&padded_image_shape_[0],
 			    depth_kernel_.data(),&kernel_dims_[0],
 			    padded_output_.data());
 
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( all1_convolve )
 {
 
 
-  anyfold::cpu::convolve_3d(padded_image_.data(),(int*)&padded_image_shape_[0],
+  anyfold::gpu::convolve_3d(padded_image_.data(),(int*)&padded_image_shape_[0],
 			    all1_kernel_.data(),&kernel_dims_[0],
 			    padded_output_.data());
 

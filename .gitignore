@@ -1,3 +1,11 @@
+# Backup files
+*~
+[#]*[#]
+.[#]*
+
+# Build folder
+build/
+
 # Compiled Object files
 *.slo
 *.lo
@@ -26,3 +34,9 @@
 *.exe
 *.out
 *.app
+
+# IDEs
+*.kdev4
+.kdev4/
+.directory
+

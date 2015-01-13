@@ -3,8 +3,9 @@
 
 #include "cpu/convolve.hpp"
 
-#ifdef USE_OPENCL
+#ifdef HAS_OPENCL
 #include "opencl/convolve.hpp"
-#endif /* USE_OPENCL */
+#include "gpu/convolve.hpp"
+#endif /* HAS_OPENCL */
 
 #endif /* _ANYFOLD_H_ */
