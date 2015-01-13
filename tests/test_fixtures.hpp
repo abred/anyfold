@@ -29,6 +29,7 @@ struct convolutionFixture3D
   image_stack       image_                           ;
   image_stack       padded_image_                           ;
   image_stack       padded_one_                           ;
+  image_stack       output_                           ;
   image_stack       padded_output_                           ;
 
   image_stack       image_folded_by_horizontal_             ;
@@ -64,6 +65,7 @@ public:
     image_                           (boost::extents[ImageDimSize][ImageDimSize][ImageDimSize]),
     padded_image_                           (boost::extents[ImageDimSize+2*(KernelDimSize/2)][ImageDimSize+2*(KernelDimSize/2)][ImageDimSize+2*(KernelDimSize/2)]),
     padded_one_                           (boost::extents[ImageDimSize+2*(KernelDimSize/2)][ImageDimSize+2*(KernelDimSize/2)][ImageDimSize+2*(KernelDimSize/2)]),
+    output_                           (boost::extents[ImageDimSize][ImageDimSize][ImageDimSize]),
     padded_output_                           (boost::extents[ImageDimSize+2*(KernelDimSize/2)][ImageDimSize+2*(KernelDimSize/2)][ImageDimSize+2*(KernelDimSize/2)]),
     image_folded_by_horizontal_             (boost::extents[ImageDimSize][ImageDimSize][ImageDimSize]),
     image_folded_by_vertical_               (boost::extents[ImageDimSize][ImageDimSize][ImageDimSize]),
@@ -104,10 +106,13 @@ public:
     }
     
     //FILL IMAGES
+    unsigned image_axis = ImageDimSize;
+    unsigned image_size = std::pow(image_axis,3);
     unsigned padded_image_axis = ImageDimSize+2*halfKernel;
     unsigned padded_image_size = std::pow(padded_image_axis,3);
     std::fill(padded_image_.data(),  padded_image_.data()  +  padded_image_size,  0.f  );
     std::fill(padded_one_.data(),  padded_one_.data()  +  padded_image_size,  0.f  );
+    std::fill(output_.data(),  output_.data()  +  image_size,  0.f  );
     std::fill(padded_output_.data(),  padded_output_.data()  +  padded_image_size,  0.f  );
     std::fill(padded_image_folded_by_horizontal_.data(),  padded_image_folded_by_horizontal_.data()  +  padded_image_size,  0.f  );
     std::fill(padded_image_folded_by_vertical_.data(),  padded_image_folded_by_vertical_.data()  +  padded_image_size,  0.f  );

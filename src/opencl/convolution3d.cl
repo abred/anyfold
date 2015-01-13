@@ -2,7 +2,8 @@
 
 __constant sampler_t sampler =
 	CLK_NORMALIZED_COORDS_FALSE
-	| CLK_ADDRESS_CLAMP_TO_EDGE
+	| CLK_ADDRESS_CLAMP
+	/* | CLK_ADDRESS_CLAMP_TO_EDGE */
 	| CLK_FILTER_NEAREST;
 
 float currentWeight (__constant const float* filterWeights,
@@ -25,13 +26,6 @@ __kernel void convolution3d (__read_only image3d_t input,
 	                  get_global_id(1),
 	                  get_global_id(2), 0};
 
-	if(pos.x == 0 || pos.y == 0 || pos.z == 0 ||
-	   pos.x == 9 || pos.y == 9 || pos.z == 9)
-	{
-		write_imagef (output, pos, 0);
-	}
-	else
-	{
 	float sum = 0.0f;
 	for(int z = -FILTER_SIZE_HALF; z <= FILTER_SIZE_HALF; z++) {
 		for(int y = -FILTER_SIZE_HALF; y <= FILTER_SIZE_HALF; y++) {
@@ -42,5 +36,4 @@ __kernel void convolution3d (__read_only image3d_t input,
 		}
 	}
 	write_imagef (output, pos, sum);
-	}
 }

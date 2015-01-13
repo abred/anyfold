@@ -1,5 +1,5 @@
-#ifndef _GPU_CONVOLVE_HPP_
-#define _GPU_CONVOLVE_HPP_
+#ifndef _OPENCL_CONVOLVE_HPP_
+#define _OPENCL_CONVOLVE_HPP_
 
 #include <vector>
 
@@ -8,7 +8,7 @@
 
 namespace anyfold {
 
-namespace gpu {
+namespace opencl {
     
 void convolve(image_stack_cref image, 
               image_stack_cref kernel, 
@@ -17,7 +17,7 @@ void convolve(image_stack_cref image,
 {
 	Convolution3DCL c;
 	c.setupCLcontext();
-	std::string loc = std::string(PROJECT_ROOT_DIR) + std::string("/src/gpu/convolution3d.cl");
+	std::string loc = std::string(PROJECT_ROOT_DIR) + std::string("/src/opencl/convolution3d.cl");
 	c.createProgramAndLoadKernel(loc.c_str(), "convolution3d");
 	c.setupKernelArgs(image, kernel, offset);
 	c.execute();
@@ -43,7 +43,7 @@ void convolve_3d(const float* src_begin, int* src_extents,
 	convolve(image,kernel,output,offsets);
 }
 
-} /* namespace gpu */
+} /* namespace opencl */
 } /* namespace anyfold */
 
-#endif /* _GPU_CONVOLVE_H_ */
+#endif /* _OPENCL_CONVOLVE_H_ */

@@ -4,7 +4,7 @@
 #include "cpu/convolve.hpp"
 
 #ifdef HAS_OPENCL
-#include "gpu/convolve.hpp"
+#include "opencl/convolve.hpp"
 #endif
 
 #endif /* _ANYFOLD_H_ */

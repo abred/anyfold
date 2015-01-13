@@ -14,7 +14,7 @@
 
 namespace anyfold {
 
-namespace gpu {
+namespace opencl {
 
 class Convolution3DCL
 {
@@ -61,7 +61,7 @@ private:
 
 };
 
-} /* namespace gpu */
+} /* namespace opencl */
 } /* namespace anyfold */
 
 #endif /* CONVOLUTION3DCL_HPP */

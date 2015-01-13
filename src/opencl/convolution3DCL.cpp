@@ -1,11 +1,11 @@
 #include <iostream>
 #include <fstream>
 
-#include "gpu/convolution3DCL.hpp"
+#include "opencl/convolution3DCL.hpp"
 
 namespace anyfold {
 
-namespace gpu {
+namespace opencl {
 
 #define CHECK_ERROR(status, fctname) { \
 	checkError(status, fctname, __FILE__, __LINE__ -1); \
@@ -401,5 +401,5 @@ void Convolution3DCL::checkError(cl_int status, const char* label, const char* f
 	exit(status);
 }
 
-} /* namespace gpu */
+} /* namespace opencl */
 } /* namespace anyfold */
