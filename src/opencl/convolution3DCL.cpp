@@ -244,18 +244,10 @@ void Convolution3DCL::getResult(image_stack_ref result)
 	std::size_t region [3] = {result.shape()[0],
 	                          result.shape()[1],
 	                          result.shape()[2]};
-	clEnqueueReadImage(queue, outputImage, CL_TRUE,
-	                   origin, region, 0, 0,
-	                   result.data(), 0, nullptr, nullptr);
-
-	// std::cout << region[0] << " " << region[1] << " " << region[2] << std::endl;
-	// for(int i = 0; i < 10; i++){
-	// 	for(int j = 0; j < 10; j++){
-	// 		for(int k = 0; k < 10; k++){
-	// 			std::cout << result.data()[i*100+j*10+k] << " ";
-	// 		}std::cout << std::endl;
-	// 	}std::cout << std::endl;
-	// }std::cout << std::endl;
+	status = clEnqueueReadImage(queue, outputImage, CL_TRUE,
+				    origin, region, 0, 0,
+				    result.data(), 0, nullptr, nullptr);
+	CHECK_ERROR(status, "clEnqueueReadImage");
 }
 
 void Convolution3DCL::checkError(cl_int status, const char* label, const char* file, int line)

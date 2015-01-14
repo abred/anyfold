@@ -24,7 +24,7 @@ public:
 
 	bool setupCLcontext();
 	void createProgramAndLoadKernel(const char* fileName,
-	                                const char* kernelName
+	                                const char* kernelName,
 					size_t filterSize);
 	void setupKernelArgs(image_stack_cref _image,
 	                     image_stack_cref _kernel,

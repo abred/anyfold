@@ -15,13 +15,19 @@ static anyfold::storage local_order = boost::c_storage_order();
 typedef anyfold::convolutionFixture3D<3,32> fixture_3D_32_3;
 typedef anyfold::convolutionFixture3D<3,64> fixture_3D_64_3;
 typedef anyfold::convolutionFixture3D<3,128> fixture_3D_128_3;
+typedef anyfold::convolutionFixture3D<3,256> fixture_3D_256_3;
 typedef anyfold::convolutionFixture3D<5,64> fixture_3D_64_5;
+typedef anyfold::convolutionFixture3D<5,128> fixture_3D_128_5;
 
-typedef boost::mpl::vector<anyfold::default_3D_fixture,
-			   fixture_3D_32_3,
-			   fixture_3D_64_3,
-			   fixture_3D_128_3,
-			   fixture_3D_64_5> Fixtures;
+typedef boost::mpl::vector<
+	anyfold::default_3D_fixture,
+	fixture_3D_32_3,
+	fixture_3D_64_3,
+	fixture_3D_128_3,
+	fixture_3D_256_3,
+	fixture_3D_64_5,
+	fixture_3D_128_5
+	> Fixtures;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(trivial_convolve, T, Fixtures, T)
 {
