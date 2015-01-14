@@ -46,10 +46,18 @@ function(_FIND_OPENCL_VERSION)
         CL_VERSION_${VERSION}
         "${OpenCL_INCLUDE_DIR}/OpenCL/cl.h"
         OPENCL_VERSION_${VERSION})
+      CHECK_SYMBOL_EXISTS(
+        CL_VERSION_${VERSION}
+        "${OpenCL_INCLUDE_DIR}/OpenCL/cl.hpp"
+        OPENCL_VERSION_${VERSION})
     else()
       CHECK_SYMBOL_EXISTS(
         CL_VERSION_${VERSION}
         "${OpenCL_INCLUDE_DIR}/CL/cl.h"
+        OPENCL_VERSION_${VERSION})
+      CHECK_SYMBOL_EXISTS(
+        CL_VERSION_${VERSION}
+        "${OpenCL_INCLUDE_DIR}/CL/cl.hpp"
         OPENCL_VERSION_${VERSION})
     endif()
 

@@ -5,9 +5,9 @@
 #include <string>
 
 #ifdef __APPLE__
-	#include "OpenCL/opencl.h"
+	#include "Opencl/opencl.hpp"
 #else
-	#include "CL/cl.h"
+	#include "CL/cl.hpp"
 #endif
 
 #include "image_stack_utils.h"
@@ -23,8 +23,8 @@ public:
 	~Convolution3DCL() = default;
 
 	bool setupCLcontext();
-	void createProgramAndLoadKernel(const char* fileName,
-	                                const char* kernelName,
+	void createProgramAndLoadKernel(const std::string& fileName,
+	                                const std::string& kernelName, 
 					size_t filterSize);
 	void setupKernelArgs(image_stack_cref _image,
 	                     image_stack_cref _kernel,
@@ -35,29 +35,30 @@ public:
 
 
 private:
-	void createProgram(const std::string& source, size_t filterSize);
-	void loadKernel(const char* kernelName);
-	void* getDeviceInfo(cl_device_id id, cl_device_info info);
-	std::string getDeviceName(cl_device_id id);
-	std::string getPlatformInfo(cl_platform_id id, cl_platform_info info);
+	void createProgram(const std::string& source,size_t filterSize);
+	void loadKernel(const std::string& kernelName);
+	std::string getDeviceInfo(cl::Device device, cl_device_info info);
+	std::string getDeviceName(cl::Device device);
+	std::string getPlatformInfo(cl::Platform platform, cl_platform_info info);
+
 	void checkError(cl_int status, const char* label,
 	                const char* file, int line);
 
 
 private:
-	cl_context context;
-	std::vector<cl_platform_id> platforms;
-	std::vector<cl_device_id> devices;
+	cl::Context context;
+	std::vector<cl::Platform> platforms;
+	std::vector<cl::Device> devices;
 
-	cl_program program;
-	cl_kernel kernel;
-	cl_command_queue queue;
+	cl::Program program;
+	cl::Kernel kernel;
+	cl::CommandQueue queue;
 
-	cl_int status = CL_SUCCESS;
+	int status = CL_SUCCESS;
 
-	cl_mem inputImage;
-	cl_mem outputImage;
-	cl_mem filterWeightsBuffer;
+	cl::Image3D inputImage;
+	cl::Image3D outputImage;
+	cl::Buffer filterWeightsBuffer;
 	std::size_t size[3];
 
 };
