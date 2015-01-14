@@ -59,7 +59,7 @@ void* Convolution3DCL::getDeviceInfo(cl_device_id id, cl_device_info info)
 	return result;
 }
 
-void Convolution3DCL::createProgramAndLoadKernel(const char* fileName, const char* kernelName)
+void Convolution3DCL::createProgramAndLoadKernel(const char* fileName, const char* kernelName, size_t filterSize)
 {
 	std::string content;
 	std::ifstream in(fileName, std::ios::in);
@@ -72,19 +72,22 @@ void Convolution3DCL::createProgramAndLoadKernel(const char* fileName, const cha
 		in.close();
 	}
 
-	createProgram(content);
+	createProgram(content, filterSize);
 	loadKernel(kernelName);
 }
 
-void Convolution3DCL::createProgram(const std::string& source)
+void Convolution3DCL::createProgram(const std::string& source, 
+				    size_t filterSize)
 {
 	const char* sources [1] = { source.c_str() };
 
 	program = clCreateProgramWithSource(context, 1, sources, nullptr, &status);
 	CHECK_ERROR(status, "clCreateProgramWithSource");
 
+	std::string defines = std::string("-D FILTER_SIZE=") + std::to_string(filterSize) +
+	                      std::string(" -D FILTER_SIZE_HALF=") + std::to_string(filterSize/2);
 	status = clBuildProgram(program, 0, nullptr,
-	                        "-D FILTER_SIZE=3 -D FILTER_SIZE_HALF=1",
+	                        defines.c_str(),
 	                        nullptr, nullptr);
 
 	size_t logSize = 0;
