@@ -24,7 +24,7 @@ public:
 
 	bool setupCLcontext();
 	void createProgramAndLoadKernel(const std::string& fileName,
-	                                const std::string& kernelName, 
+	                                const std::string& kernelName,
 					size_t filterSize);
 	void setupKernelArgs(image_stack_cref _image,
 	                     image_stack_cref _kernel,
@@ -54,7 +54,7 @@ private:
 	cl::Kernel kernel;
 	cl::CommandQueue queue;
 
-	int status = CL_SUCCESS;
+	cl_int status = CL_SUCCESS;
 
 	cl::Image3D inputImage;
 	cl::Image3D outputImage;
