@@ -24,8 +24,9 @@ public:
 
 	bool setupCLcontext();
 	void createProgramAndLoadKernel(const std::string& fileName,
-	                                const std::string& kernelName, 
-					size_t filterSize);
+	                                const std::string& kernelName,
+	                                size_t filterSize,
+	                                size_t imageSize);
 	void setupKernelArgs(image_stack_cref _image,
 	                     image_stack_cref _kernel,
 	                     const std::vector<int>& _offset);
@@ -35,7 +36,7 @@ public:
 
 
 private:
-	void createProgram(const std::string& source,size_t filterSize);
+	void createProgram(const std::string& source,size_t filterSize, size_t imageSize);
 	void loadKernel(const std::string& kernelName);
 	std::string getDeviceInfo(cl::Device device, cl_device_info info);
 	std::string getDeviceName(cl::Device device);
@@ -54,10 +55,10 @@ private:
 	cl::Kernel kernel;
 	cl::CommandQueue queue;
 
-	int status = CL_SUCCESS;
+	cl_int status = CL_SUCCESS;
 
-	cl::Image3D inputImage;
-	cl::Image3D outputImage;
+	cl::Buffer inputBuffer;
+	cl::Buffer outputBuffer;
 	cl::Buffer filterWeightsBuffer;
 	std::size_t size[3];
 
