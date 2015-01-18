@@ -119,8 +119,6 @@ BOOST_AUTO_TEST_CASE( depth_convolve )
 
 BOOST_AUTO_TEST_CASE( all1_convolve )
 {
-
-
   anyfold::cpu::convolve_3d(padded_image_.data(),(int*)&padded_image_shape_[0],
 			    all1_kernel_.data(),&kernel_dims_[0],
 			    padded_output_.data());

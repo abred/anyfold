@@ -153,6 +153,7 @@ void Convolution3DCL::setupKernelArgs(image_stack_cref image,
     size[0] = image.shape()[0];
     size[1] = image.shape()[1];
     size[2] = image.shape()[2];
+    
     // std::cout << size[0] << " " << size[1] << " " << size[2] << std::endl;
     // for(int i = 0; i < 10; i++){
     // 	for(int j = 0; j < 10; j++){
@@ -189,7 +190,7 @@ void Convolution3DCL::setupKernelArgs(image_stack_cref image,
 }
 
 void Convolution3DCL::execute()
-{
+{  
     queue.enqueueNDRangeKernel(kernel,0,cl::NDRange(size[0],size[1],size[2]));
 
     CHECK_ERROR(status, "Queue::enqueueNDRangeKernel");
