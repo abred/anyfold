@@ -47,7 +47,8 @@ int main(int argc, char *argv[])
 
 	int ks = 3;
 	SimpleTimer timer;
-	for (int i = 8; i <= 512; i *= 2)
+	int rep = 32;
+	for (int i = 8; i <= 256; i *= 2)
 	{
 		std::cout << "\nImage size:  " << i
 		          << "\nKernel size: " << ks << std::endl;
@@ -58,12 +59,18 @@ int main(int argc, char *argv[])
 		int kernelShape[] = {ks, ks, ks};
 		float* output = new float[i*i*i];
 
+		uint64_t time = 0;
 		// OpenCL
-		timer.start();
-		anyfold::opencl::convolve_3d(image, imageShape, kernel, kernelShape, output);
-		timer.end();
-		std::cout << "OpenCL: \n";
-		timer.print(true);
+		for(int r = 0; r < rep; ++r)
+		{
+			timer.start();
+			anyfold::opencl::convolve_3d(image, imageShape, kernel, kernelShape, output);
+			timer.end();
+			// std::cout << "OpenCL: \n";
+			// timer.print(true);
+			time += timer.getNS();
+		}
+		std::cout << "OpenCL (average): \n" << (float)time / 1000000000.0f / (float)rep << std::endl;
 
 		// CPU
 		float* outputCPU = new float[i*i*i];
