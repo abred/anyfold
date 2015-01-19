@@ -57,10 +57,10 @@ private:
 	cl_int status = CL_SUCCESS;
 
 	cl::Image3D inputImage;
-	cl::Image3D outputImage[2];
+	cl::Image3D outputImage;
 	cl::Buffer filterWeightsBuffer;
 	std::size_t size[3];
-	std::size_t filterSize[3];
+
 };
 
 } /* namespace opencl */
