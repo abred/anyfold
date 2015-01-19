@@ -113,7 +113,9 @@ void Convolution3DCL::setupKernelArgs(image_stack_cref image,
 	size[0] = image.shape()[0];
 	size[1] = image.shape()[1];
 	size[2] = image.shape()[2];
-
+	filterSize[0] = filterKernel.shape()[0];
+	filterSize[1] = filterKernel.shape()[1];
+	filterSize[2] = filterKernel.shape()[2];
 	const cl::ImageFormat format =  cl::ImageFormat(CL_R, CL_FLOAT);
 	inputImage = cl::Image3D(context,
 	                         CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
@@ -122,11 +124,16 @@ void Convolution3DCL::setupKernelArgs(image_stack_cref image,
 	                         0, 0, const_cast<float*>(image.data()), &status);
 	CHECK_ERROR(status, "cl::Image3D");
 
-	outputImage = cl::Image3D(context, CL_MEM_WRITE_ONLY, format,
-	                          size[0], size[1], size[2],
-	                          0, 0, nullptr, &status);
+	outputImage[0] = cl::Image3D(context, CL_MEM_READ_WRITE, format,
+	                             size[0], size[1], size[2],
+	                             0, 0, nullptr, &status);
 	CHECK_ERROR(status, "cl::Image3D");
 
+	outputImage[1] = cl::Image3D(context, CL_MEM_READ_WRITE, format,
+	                             size[0], size[1], size[2],
+	                             0, 0, nullptr, &status);
+	CHECK_ERROR(status, "cl::Image3D");
+	
 	filterWeightsBuffer = cl::Buffer(context,
 	                                 CL_MEM_READ_ONLY |
 	                                 CL_MEM_COPY_HOST_PTR,
@@ -136,13 +143,32 @@ void Convolution3DCL::setupKernelArgs(image_stack_cref image,
 
 	kernel.setArg(0,inputImage);
 	kernel.setArg(1,filterWeightsBuffer);
-	kernel.setArg(2,outputImage);
+	kernel.setArg(2,outputImage[0]);
 }
 
 void Convolution3DCL::execute()
 {
-	queue.enqueueNDRangeKernel(kernel,0,cl::NDRange(size[0],size[1],size[2]));
-	CHECK_ERROR(status, "Queue::enqueueNDRangeKernel");
+	bool d = 0;
+	for(int z = 0; z < filterSize[2]; z +=3)
+	{
+		for(int y = 0; y < filterSize[1]; y +=3)
+		{
+			for(int x = 0; x < filterSize[0]; x +=3)
+			{
+				cl_int3 offset = {x, y, z};
+				kernel.setArg(4, offset);
+				kernel.setArg(2, outputImage[d]);
+				kernel.setArg(3, outputImage[!d]);
+				d = !d;
+				queue.enqueueNDRangeKernel(kernel, 0,
+				                           cl::NDRange(size[0],
+				                                       size[1],
+				                                       size[2]),
+				                           cl::NDRange(4, 4, 4));
+				CHECK_ERROR(status, "Queue::enqueueNDRangeKernel");
+			}
+		}
+	}
 }
 
 void Convolution3DCL::getResult(image_stack_ref result)
