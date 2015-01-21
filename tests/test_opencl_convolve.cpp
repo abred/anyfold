@@ -22,7 +22,9 @@ typedef anyfold::convolutionFixture3D<5,64> fixture_3D_64_5;
 typedef anyfold::convolutionFixture3D<9,64> fixture_3D_64_9;
 typedef anyfold::convolutionFixture3D<5,128> fixture_3D_128_5;
 
-typedef anyfold::convolutionFixture3DAsym<9,3,15,32> fixture_3D_asym_32_3_9_15;
+typedef anyfold::convolutionFixture3DAsym<9,3,17,32> fixture_3D_asym_32_9_3_17;
+typedef anyfold::convolutionFixture3DAsym<11,5,17,32> fixture_3D_asym_32_11_5_17;
+typedef anyfold::convolutionFixture3DAsym<9,3,15,32> fixture_3D_asym_32_9_3_15;
 
 typedef boost::mpl::vector<
 	// fixture_3D_4_3
@@ -32,7 +34,9 @@ typedef boost::mpl::vector<
 	// , fixture_3D_128_3
 	// , fixture_3D_256_3
 	 // fixture_3D_64_9
-	fixture_3D_asym_32_3_9_15
+	fixture_3D_asym_32_9_3_17,
+	fixture_3D_asym_32_11_5_17,
+	fixture_3D_asym_32_9_3_15
 	// , fixture_3D_128_5
 	> Fixtures;
 
