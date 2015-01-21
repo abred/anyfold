@@ -69,8 +69,8 @@ void Convolution3DCL::createProgram(const std::string& source,
 	CHECK_ERROR(status, "cl::Program");
 
 	std::string defines = std::string("-D FILTER_SIZE=") + std::to_string(filterSize) +
-	                      std::string(" -D FILTER_SIZE_HALF=") + std::to_string(1);
-	                      // std::string(" -D FILTER_SIZE_HALF=") + std::to_string(filterSize/2);
+	                      // std::string(" -D FILTER_SIZE_HALF=") + std::to_string(1);
+	                      std::string(" -D FILTER_SIZE_HALF=") + std::to_string(filterSize/2);
 	status = program.build(devices,
 	                       defines.c_str(),
 	                       nullptr, nullptr);
