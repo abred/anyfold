@@ -25,20 +25,23 @@ __kernel void convolution3d (__read_only image3d_t input,
 {
 	__local float values[6*6*6];
 	
-	int gidx = get_global_id(2) * get_global_size(1) * get_global_size(0) +
-	           get_global_id(1) * get_global_size(0) +
-	           get_global_id(0);
+	int gidx = (-FILTER_SIZE_HALF+1+get_global_id(2)) * get_global_size(1) * get_global_size(0) +
+	           (-FILTER_SIZE_HALF+1+get_global_id(1)) * get_global_size(0) +
+	           (-FILTER_SIZE_HALF+1+get_global_id(0));
 
-	
-	int4 pos = {get_global_id(0),
-	            get_global_id(1),
-	            get_global_id(2), 0};
-	float oldVal = 0.0f;//read_imagef(inter, sampler, pos).x;
 
+	int4 pos = {(get_global_id(0)),
+	            (get_global_id(1)),
+	            (get_global_id(2)), 0};
+	int4 pos2 = {(-FILTER_SIZE_HALF+1+get_global_id(0)),
+	            (-FILTER_SIZE_HALF+1+get_global_id(1)),
+	            (-FILTER_SIZE_HALF+1+get_global_id(2)), 0};
+	float oldVal = read_imagef(inter, sampler, pos).x;
+	/* if(oldVal != 0.0f)printf("%d ", oldVal); */
 	int lidx = (get_local_id(2)+1) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 		   (get_local_id(1)+1) * (get_local_size(0)+2) +
 		   (get_local_id(0)+1);
-	values[lidx] = read_imagef(input, sampler, pos).x;
+	values[lidx] = read_imagef(input, sampler, pos2).x;
 	/* printf("%d %f\n", lidx, values[lidx]); */
 
 	if(get_local_id(0) == 0)
@@ -46,9 +49,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+1) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+1) * (get_local_size(0)+2) +
 			 (get_local_id(0)+0);
-		int4 p = {get_global_id(0)-1,
-		          get_global_id(1),
-		          get_global_id(2), 0};
+		int4 p = {(-FILTER_SIZE_HALF+1+get_global_id(0))-1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(1)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(2)), 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub0"); */
 		/* printf("%d ", id); */
@@ -58,9 +61,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+1) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+0) * (get_local_size(0)+2) +
 			 (get_local_id(0)+1);
-		int4 p = (int4){get_global_id(0),
-		          get_global_id(1)-1,
-		          get_global_id(2), 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(1))-1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(2)), 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub1"); */
 		/* printf("%d ", id); */
@@ -70,9 +73,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+0) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+1) * (get_local_size(0)+2) +
 			 (get_local_id(0)+1);
-		int4 p = (int4){get_global_id(0),
-		                get_global_id(1),
-		                get_global_id(2)-1, 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0)),
+		                (-FILTER_SIZE_HALF+1+get_global_id(1)),
+		                (-FILTER_SIZE_HALF+1+get_global_id(2))-1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub2"); */
 		/* printf("%d %f %d %d %d\n", id, values[id], p.x, p.y, p.z); */
@@ -82,9 +85,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+1) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+1) * (get_local_size(0)+2) +
 			 (get_local_id(0)+2);
-		int4 p = (int4){get_global_id(0)+1,
-		          get_global_id(1),
-		          get_global_id(2), 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))+1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(1)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(2)), 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub00"); */
 		/* printf("%d ", id); */
@@ -94,9 +97,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+1) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(0)+1);
-		int4 p = (int4){get_global_id(0),
-		          get_global_id(1)+1,
-		          get_global_id(2), 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(1))+1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(2)), 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub01"); */
 		/* printf("%d ", id); */
@@ -106,9 +109,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+2) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+1) * (get_local_size(0)+2) +
 			 (get_local_id(0)+1);
-		int4 p = (int4){get_global_id(0),
-		          get_global_id(1),
-		          get_global_id(2)+1, 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(1)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(2))+1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub02"); */
 		/* printf("%d ", id); */
@@ -119,9 +122,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+1) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+0) * (get_local_size(0)+2) +
 			 (get_local_id(0)+0);
-		int4 p = (int4){get_global_id(0)-1,
-		          get_global_id(1)-1,
-		          get_global_id(2), 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))-1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(1))-1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(2)), 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub"); */
 		/* printf("%d ", id); */
@@ -131,9 +134,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+0) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+1) * (get_local_size(0)+2) +
 			 (get_local_id(0)+0);
-		int4 p = (int4){get_global_id(0)-1,
-		          get_global_id(1),
-		          get_global_id(2)-1, 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))-1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(1)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(2))-1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub022"); */
 		/* printf("%d ", id); */
@@ -143,9 +146,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+0) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+0) * (get_local_size(0)+2) +
 			 (get_local_id(0)+1);
-		int4 p = (int4){get_global_id(0),
-		          get_global_id(1)-1,
-		          get_global_id(2)-1, 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(1))-1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(2))-1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub122"); */
 		/* printf("%d ", id); */
@@ -155,9 +158,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+1) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(0)+2);
-		int4 p = (int4){get_global_id(0)+1,
-		          get_global_id(1)+1,
-		          get_global_id(2), 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))+1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(1))+1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(2)), 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub011"); */
 		/* printf("%d ", id); */
@@ -167,9 +170,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+2) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+1) * (get_local_size(0)+2) +
 			 (get_local_id(0)+2);
-		int4 p = (int4){get_global_id(0)+1,
-		          get_global_id(1),
-		          get_global_id(2)+1, 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))+1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(1)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(2))+1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub02"); */
 		/* printf("%d ", id); */
@@ -179,9 +182,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+2) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(0)+1);
-		int4 p = (int4){get_global_id(0),
-		          get_global_id(1)+1,
-		          get_global_id(2)+1, 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(1))+1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(2))+1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub13"); */
 		/* printf("%d ", id); */
@@ -192,9 +195,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+1) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(0)+0);
-		int4 p = (int4){get_global_id(0)-1,
-		          get_global_id(1)+1,
-		          get_global_id(2), 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))-1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(1))+1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(2)), 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub"); */
 		/* printf("%d ", id); */
@@ -204,9 +207,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+2) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+1) * (get_local_size(0)+2) +
 			 (get_local_id(0)+0);
-		int4 p = (int4){get_global_id(0)-1,
-		          get_global_id(1),
-		          get_global_id(2)+1, 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))-1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(1)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(2))+1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub022"); */
 		/* printf("%d ", id); */
@@ -216,9 +219,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+2) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+0) * (get_local_size(0)+2) +
 			 (get_local_id(0)+1);
-		int4 p = (int4){get_global_id(0),
-		          get_global_id(1)-1,
-		          get_global_id(2)+1, 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(1))-1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(2))+1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub122"); */
 		/* printf("%d ", id); */
@@ -228,9 +231,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+1) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+0) * (get_local_size(0)+2) +
 			 (get_local_id(0)+2);
-		int4 p = (int4){get_global_id(0)+1,
-		          get_global_id(1)-1,
-		          get_global_id(2), 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))+1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(1))-1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(2)), 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub011"); */
 		/* printf("a%d ", id); */
@@ -240,9 +243,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+0) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+1) * (get_local_size(0)+2) +
 			 (get_local_id(0)+2);
-		int4 p = (int4){get_global_id(0)+1,
-		          get_global_id(1),
-		          get_global_id(2)-1, 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))+1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(1)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(2))-1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub02"); */
 		/* printf("z%d ", id); */
@@ -252,9 +255,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+0) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(0)+1);
-		int4 p = (int4){get_global_id(0),
-		          get_global_id(1)+1,
-		          get_global_id(2)-1, 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0)),
+		          (-FILTER_SIZE_HALF+1+get_global_id(1))+1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(2))-1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blub13"); */
 		/* printf("x%d ", id); */
@@ -265,9 +268,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		int id = (get_local_id(2)+0) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 			 (get_local_id(1)+0) * (get_local_size(0)+2) +
 			 (get_local_id(0)+0);
-		int4 p = (int4){get_global_id(0)-1,
-		          get_global_id(1)-1,
-		          get_global_id(2)-1, 0};
+		int4 p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))-1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(1))-1,
+		          (-FILTER_SIZE_HALF+1+get_global_id(2))-1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blubq"); */
 		/* printf("%d ", id); */
@@ -275,9 +278,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		id = (get_local_id(2)+0) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 		     (get_local_id(1)+0) * (get_local_size(0)+2) +
 		     (get_local_id(0)+5);
-		p = (int4){get_global_id(0)+4,
-		     get_global_id(1)-1,
-		     get_global_id(2)-1, 0};
+		p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))+4,
+		     (-FILTER_SIZE_HALF+1+get_global_id(1))-1,
+		     (-FILTER_SIZE_HALF+1+get_global_id(2))-1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blubw"); */
 		/* printf("%d ", id); */
@@ -285,9 +288,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		id = (get_local_id(2)+0) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 		     (get_local_id(1)+5) * (get_local_size(0)+2) +
 		     (get_local_id(0)+0);
-		p = (int4){get_global_id(0)-1,
-		     get_global_id(1)+4,
-		     get_global_id(2)-1, 0};
+		p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))-1,
+		     (-FILTER_SIZE_HALF+1+get_global_id(1))+4,
+		     (-FILTER_SIZE_HALF+1+get_global_id(2))-1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blube"); */
 		/* printf("%d ", id); */
@@ -295,9 +298,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		id = (get_local_id(2)+0) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 		     (get_local_id(1)+5) * (get_local_size(0)+2) +
 		     (get_local_id(0)+5);
-		p = (int4){get_global_id(0)+4,
-		     get_global_id(1)+4,
-		     get_global_id(2)-1, 0};
+		p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))+4,
+		     (-FILTER_SIZE_HALF+1+get_global_id(1))+4,
+		     (-FILTER_SIZE_HALF+1+get_global_id(2))-1, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blubr"); */
 		/* printf("%d ", id); */
@@ -305,9 +308,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		id = (get_local_id(2)+5) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 		     (get_local_id(1)+0) * (get_local_size(0)+2) +
 		     (get_local_id(0)+0);
-		p = (int4){get_global_id(0)-1,
-		     get_global_id(1)-1,
-		     get_global_id(2)+4, 0};
+		p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))-1,
+		     (-FILTER_SIZE_HALF+1+get_global_id(1))-1,
+		     (-FILTER_SIZE_HALF+1+get_global_id(2))+4, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blubt"); */
 		/* printf("%d ", id); */
@@ -315,9 +318,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		id = (get_local_id(2)+5) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 		     (get_local_id(1)+0) * (get_local_size(0)+2) +
 		     (get_local_id(0)+5);
-		p = (int4){get_global_id(0)+4,
-		     get_global_id(1)-1,
-		     get_global_id(2)+4, 0};
+		p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))+4,
+		     (-FILTER_SIZE_HALF+1+get_global_id(1))-1,
+		     (-FILTER_SIZE_HALF+1+get_global_id(2))+4, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("bluby"); */
 		/* /\* printf("%d ", id); *\/ */
@@ -325,9 +328,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		id = (get_local_id(2)+5) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 		     (get_local_id(1)+5) * (get_local_size(0)+2) +
 		     (get_local_id(0)+0);
-		p = (int4){get_global_id(0)-1,
-		     get_global_id(1)+4,
-		     get_global_id(2)+4, 0};
+		p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))-1,
+		     (-FILTER_SIZE_HALF+1+get_global_id(1))+4,
+		     (-FILTER_SIZE_HALF+1+get_global_id(2))+4, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blubu"); */
 		/* printf("%d %d %d %d %f\n", id, p.x, p.y, p.z, values[id]); */
@@ -335,9 +338,9 @@ __kernel void convolution3d (__read_only image3d_t input,
 		id = (get_local_id(2)+5) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 		     (get_local_id(1)+5) * (get_local_size(0)+2) +
 		     (get_local_id(0)+5);
-		p = (int4){get_global_id(0)+4,
-		     get_global_id(1)+4,
-		     get_global_id(2)+4, 0};
+		p = (int4){(-FILTER_SIZE_HALF+1+get_global_id(0))+4,
+		     (-FILTER_SIZE_HALF+1+get_global_id(1))+4,
+		     (-FILTER_SIZE_HALF+1+get_global_id(2))+4, 0};
 		values[id] = read_imagef(input, sampler, p).x;
 		/* if(isnan(values[id])) printf("blubi"); */
 		/* printf("abc %d %d %d %d ", id, get_local_size(0), get_local_size(1), get_local_size(2)); */
@@ -380,8 +383,8 @@ __kernel void convolution3d (__read_only image3d_t input,
 			for(int x = -1; x <= 1; x++)
 			{
 				int id = idz + idy + get_local_id(0)+1+x;
-				/* float val = currentWeight(filterWeights, offset.x+x, offset.y+y, offset.z+z) */
-				float val = currentWeight(filterWeights, x, y, z)
+				float val = currentWeight(filterWeights, offset.x+x, offset.y+y, offset.z+z)
+				/* float val = currentWeight(filterWeights, x, y, z) */
 					* values[id];
 				sum += val;
 				/* sum += currentWeight(filterWeights, x, y, z) */
@@ -393,7 +396,7 @@ __kernel void convolution3d (__read_only image3d_t input,
 	}
 	/* for(int i = 0; i < 6*6*6; ++i) */
 	/* { */
-	/* 	if(isnan(values[i])) 	printf("b %d %d %d %d %d %d %d %f\n", i, get_global_id(0), get_global_id(1), get_global_id(2), get_local_id(0), get_local_id(1), get_local_id(2), values[i]); */
+	/* 	if(isnan(values[i])) 	printf("b %d %d %d %d %d %d %d %f\n", i, (-FILTER_SIZE_HALF+1+get_global_id(0)), (-FILTER_SIZE_HALF+1+get_global_id(1)), (-FILTER_SIZE_HALF+1+get_global_id(2)), get_local_id(0), get_local_id(1), get_local_id(2), values[i]); */
 
 	/* } */
 

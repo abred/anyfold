@@ -61,6 +61,7 @@ private:
 	cl::Buffer filterWeightsBuffer;
 	std::size_t size[3];
 	std::size_t filterSize[3];
+	bool outputSwap = 0;
 };
 
 } /* namespace opencl */

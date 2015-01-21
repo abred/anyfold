@@ -69,7 +69,8 @@ void Convolution3DCL::createProgram(const std::string& source,
 	CHECK_ERROR(status, "cl::Program");
 
 	std::string defines = std::string("-D FILTER_SIZE=") + std::to_string(filterSize) +
-	                      std::string(" -D FILTER_SIZE_HALF=") + std::to_string(filterSize/2);
+	                      std::string(" -D FILTER_SIZE_HALF=") + std::to_string(1);
+	                      // std::string(" -D FILTER_SIZE_HALF=") + std::to_string(filterSize/2);
 	status = program.build(devices,
 	                       defines.c_str(),
 	                       nullptr, nullptr);
@@ -128,6 +129,17 @@ void Convolution3DCL::setupKernelArgs(image_stack_cref image,
 	                             0, 0, nullptr, &status);
 	CHECK_ERROR(status, "cl::Image3D");
 
+	cl_float4 fc = {0.0f, 0.0f, 0.0f, 0.0f};
+	cl::size_t<3> origin;
+	cl::size_t<3> region;
+	origin[0] = 0;
+	origin[1] = 0;
+	origin[2] = 0;
+	region[0] = size[0];
+	region[1] = size[1];
+	region[2] = size[2];
+	queue.enqueueFillImage(outputImage[0], fc, origin, region);
+
 	outputImage[1] = cl::Image3D(context, CL_MEM_READ_WRITE, format,
 	                             size[0], size[1], size[2],
 	                             0, 0, nullptr, &status);
@@ -160,9 +172,9 @@ void Convolution3DCL::execute()
 				kernel.setArg(4, offset);
 				kernel.setArg(2, outputImage[d]);
 				kernel.setArg(3, outputImage[!d]);
+				std::cout << d << " " << size[0] << "x" << size[1] << "x" << size[2] << std::endl;
 				d = !d;
-				std::cout << size[0] << "x" << size[1] << "x" << size[2] << std::endl;
-				std::cout << x << " " << y << " " << z << std::endl;
+				std::cout << d << " " << x << " " << y << " " << z << std::endl;
 				queue.enqueueNDRangeKernel(kernel, 0,
 				                           cl::NDRange(size[0],
 				                                       size[1],
@@ -172,6 +184,7 @@ void Convolution3DCL::execute()
 			}
 		}
 	}
+	outputSwap = d;
 }
 
 void Convolution3DCL::getResult(image_stack_ref result)
@@ -184,7 +197,7 @@ void Convolution3DCL::getResult(image_stack_ref result)
 	region[0] = result.shape()[0];
 	region[1] = result.shape()[1];
 	region[2] = result.shape()[2];
-	status = queue.enqueueReadImage(outputImage[1], CL_TRUE,
+	status = queue.enqueueReadImage(outputImage[outputSwap], CL_TRUE,
 	                                origin, region, 0, 0,
 	                                result.data());
 	// std::cout << result << std::endl;
