@@ -67,10 +67,14 @@ void Convolution3DCL::createProgram(const std::string& source,
     kernel_shape[0] = _kernel.shape()[0];
     kernel_shape[1] = _kernel.shape()[1];
     kernel_shape[2] = _kernel.shape()[2];
+    
+    std::cout << kernel_shape[0] << ";" << kernel_shape[1] << ";" << kernel_shape[2] << std::endl;
 
     image_shape[0] = _image.shape()[0];
     image_shape[1] = _image.shape()[1];
     image_shape[2] = _image.shape()[2];
+    
+    std::cout << image_shape[0] << ";" << image_shape[1] << ";" << image_shape[2] << std::endl;
 
     cl::Program::Sources program_source(1, std::make_pair(source.c_str(), source.length()));
 
@@ -88,6 +92,8 @@ void Convolution3DCL::createProgram(const std::string& source,
                           std::string(" -D IMAGE_SIZE_X=") + std::to_string(image_shape[0]) +
 			  std::string(" -D IMAGE_SIZE_Y=") + std::to_string(image_shape[1]) +
 			  std::string(" -D IMAGE_SIZE_Z=") + std::to_string(image_shape[2]);
+			  
+	std::cout << "defines: "<< defines << std::endl;		  
 
     status = program.build(devices,
                            defines.c_str(),
@@ -155,7 +161,8 @@ void Convolution3DCL::setupKernelArgs(image_stack_cref image,
 
 void Convolution3DCL::execute()
 {
-    queue.enqueueNDRangeKernel(kernel,0,cl::NDRange(image_shape[0],image_shape[1],image_shape[2]));
+    std::cout << "image shape: " << image_shape[0] << "," << image_shape[1] << "," << image_shape[2] << std::endl;
+    status = queue.enqueueNDRangeKernel(kernel,0,cl::NDRange(image_shape[0],image_shape[1],image_shape[2]));
     CHECK_ERROR(status, "Queue::enqueueNDRangeKernel");
 }
 

@@ -1,4 +1,5 @@
 #pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
+#pragma OPENCL EXTENSION cl_intel_printf : enable
 
 __constant sampler_t sampler =
 	CLK_NORMALIZED_COORDS_FALSE
@@ -21,12 +22,14 @@ __kernel void convolution3d (__global float* input,
                              __global float* output)
 {
 
-	const int4 pos = {get_global_id(0),
+	const long4 pos = {get_global_id(0),
 	                  get_global_id(1),
 	                  get_global_id(2), 0};
-	int gidx = pos.z * get_global_size(1) * get_global_size(0) +
-	           pos.y * get_global_size(0) +
-	           pos.x;
+			  
+	const long gidx = get_global_id(0) + get_global_size(0) * ( get_global_id(1)+ get_global_size(1) * get_global_id(2));
+	
+	printf("sizes: %d,%d,%d\n" ,get_global_size(0),get_global_size(1),get_global_size(2));
+	
 	//padding
 	if (get_global_id(0) < FILTER_SIZE_HALF_X ||
 	    get_global_id(0) > IMAGE_SIZE_X - FILTER_SIZE_HALF_X - 1 ||
@@ -37,21 +40,25 @@ __kernel void convolution3d (__global float* input,
 		)
 	{
 		output[gidx] = 0;
+		printf("kernel_ids: %d,%d,%d %d padded\n", get_global_id(0), get_global_id(1), get_global_id(2), gidx);
 		return;
 	}
 
 	float sum = 0.0f;
 	for(int z = -FILTER_SIZE_HALF_Z; z <= FILTER_SIZE_HALF_Z; z++) {
-		int idz = (pos.z+z) * get_global_size(1) * get_global_size(0);
+		long idz = (pos.z+z) * get_global_size(1) * get_global_size(0);
 		for(int y = -FILTER_SIZE_HALF_Y; y <= FILTER_SIZE_HALF_Y; y++) {
-			int idy = (pos.y+y) * get_global_size(0);
+			long idy = (pos.y+y) * get_global_size(0);
 			for(int x = -FILTER_SIZE_HALF_X; x <= FILTER_SIZE_HALF_X; x++) {
-				int id = idz + idy + pos.x+x;
+				long id = idz + idy + pos.x+x;
 				float val = currentWeight(filterWeights, x, y, z)
 				       * input[id];
 				sum += val;
 			}
 		}
 	}
+	
+	printf("kernel_ids: %d,%d,%d %d \n", get_global_id(0), get_global_id(1), get_global_id(2), gidx);
+	
 	output[gidx] = sum;
 }
