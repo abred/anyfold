@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 	int ks = 3;
 	SimpleTimer timer;
 	int rep = 32;
-	for (int i = 8; i <= 256; i *= 2)
+	for (int i = 32; i <= 256; i *= 2)
 	{
 		std::cout << "\nImage size:  " << i
 		          << "\nKernel size: " << ks << std::endl;

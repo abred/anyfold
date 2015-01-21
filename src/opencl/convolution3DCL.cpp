@@ -74,14 +74,13 @@ void Convolution3DCL::createProgram(const std::string& source,
 	                       defines.c_str(),
 	                       nullptr, nullptr);
 
-	CHECK_ERROR(status, "cl::Program::Build");
-
 	std::string log;
 	program.getBuildInfo(devices[0],CL_PROGRAM_BUILD_LOG,&log);
 	if(log.size() > 0)
 	{
 		std::cout << log << std::endl;
 	}
+	CHECK_ERROR(status, "cl::Program::Build");
 }
 
 void Convolution3DCL::loadKernel(const std::string& kernelName)
@@ -94,7 +93,7 @@ bool Convolution3DCL::setupCLcontext()
 {
 	status = cl::Platform::get(&platforms);
 
-	status = platforms[0].getDevices(CL_DEVICE_TYPE_ALL,&devices);
+	status = platforms[0].getDevices(CL_DEVICE_TYPE_GPU,&devices);
 	CHECK_ERROR(status, "cl::Platform::getDevices");
 
 	context = cl::Context(devices,nullptr,nullptr,nullptr,&status);
@@ -144,6 +143,8 @@ void Convolution3DCL::setupKernelArgs(image_stack_cref image,
 	kernel.setArg(0,inputImage);
 	kernel.setArg(1,filterWeightsBuffer);
 	kernel.setArg(2,outputImage[0]);
+
+	// std::cout << image << std::endl;
 }
 
 void Convolution3DCL::execute()
@@ -160,6 +161,8 @@ void Convolution3DCL::execute()
 				kernel.setArg(2, outputImage[d]);
 				kernel.setArg(3, outputImage[!d]);
 				d = !d;
+				std::cout << size[0] << "x" << size[1] << "x" << size[2] << std::endl;
+				std::cout << x << " " << y << " " << z << std::endl;
 				queue.enqueueNDRangeKernel(kernel, 0,
 				                           cl::NDRange(size[0],
 				                                       size[1],
@@ -181,9 +184,10 @@ void Convolution3DCL::getResult(image_stack_ref result)
 	region[0] = result.shape()[0];
 	region[1] = result.shape()[1];
 	region[2] = result.shape()[2];
-	status = queue.enqueueReadImage(outputImage, CL_TRUE,
+	status = queue.enqueueReadImage(outputImage[1], CL_TRUE,
 	                                origin, region, 0, 0,
 	                                result.data());
+	// std::cout << result << std::endl;
 	CHECK_ERROR(status, "Queue::enqueueReadImage");
 }
 
