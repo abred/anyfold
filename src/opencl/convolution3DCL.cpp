@@ -80,7 +80,6 @@ void Convolution3DCL::createProgram(const std::string& source,
 	                        std::to_string(filterSize[1]/2) +
 	                      std::string(" -D FILTER_SIZE_Z_HALF=") +
 	                        std::to_string(filterSize[0]/2);
-	std::cout << defines << std::endl;
 	status = program.build(devices,
 	                       defines.c_str(),
 	                       nullptr, nullptr);
@@ -154,16 +153,24 @@ void Convolution3DCL::setupKernelArgs(image_stack_cref image,
 	                             size[0], size[1], size[2],
 	                             0, 0, nullptr, &status);
 	CHECK_ERROR(status, "cl::Image3D");
-	
-	filterWeightsBuffer = cl::Buffer(context,
-	                                 CL_MEM_READ_ONLY |
-	                                 CL_MEM_COPY_HOST_PTR,
-	                                 sizeof(float) * filterKernel.num_elements(),
-	                                 const_cast<float*>(filterKernel.data()), &status);
-	CHECK_ERROR(status, "cl::Buffer");
+
+	filterWeightsImage = cl::Image3D(context,
+	                                 CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+	                                 format,
+	                                 filterSize[0], filterSize[1], filterSize[2],
+	                                 0, 0, const_cast<float*>(filterKernel.data()), &status);
+	CHECK_ERROR(status, "cl::Image3D");
+
+	// filterWeightsBuffer = cl::Buffer(context,
+	//                                  CL_MEM_READ_ONLY |
+	//                                  CL_MEM_COPY_HOST_PTR,
+	//                                  sizeof(float) * filterKernel.num_elements(),
+	//                                  const_cast<float*>(filterKernel.data()), &status);
+	// CHECK_ERROR(status, "cl::Buffer");
 
 	kernel.setArg(0,inputImage);
-	kernel.setArg(1,filterWeightsBuffer);
+	// kernel.setArg(1,filterWeightsBuffer);
+	kernel.setArg(1,filterWeightsImage);
 	kernel.setArg(2,outputImage[0]);
 
 	// std::cout << image << std::endl;

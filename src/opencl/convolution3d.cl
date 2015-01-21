@@ -5,16 +5,25 @@ __constant sampler_t sampler =
 	| CLK_ADDRESS_CLAMP
 	| CLK_FILTER_NEAREST;
 
-float currentWeight (__constant const float* filterWeights,
-                     const int x, const int y, const int z)
+float currentWeight (
+	/* __constant const float* filterWeights, */
+	__read_only image3d_t filterWeights,
+	const int x, const int y, const int z)
 {
-	return filterWeights[(FILTER_SIZE_X-1 - (x+1)) +
-	                     (FILTER_SIZE_Y-1 - (y+1)) * FILTER_SIZE_X +
-	                     (FILTER_SIZE_Z-1 - (z+1)) * FILTER_SIZE_Y * FILTER_SIZE_X];
+	/* return filterWeights[(FILTER_SIZE_X-1 - (x+1)) + */
+	/*                      (FILTER_SIZE_Y-1 - (y+1)) * FILTER_SIZE_X + */
+	/*                      (FILTER_SIZE_Z-1 - (z+1)) * FILTER_SIZE_Y * FILTER_SIZE_X]; */
+
+	int4 pos = {FILTER_SIZE_X-1 - (x+1),
+	            FILTER_SIZE_Y-1 - (y+1),
+	            FILTER_SIZE_Z-1 - (z+1),
+	            0};
+	return read_imagef(filterWeights, sampler, pos).x;
 }
 
 __kernel void convolution3d (__read_only image3d_t input,
-                             __constant float* filterWeights,
+                             /* __constant float* filterWeights, */
+                             __read_only image3d_t filterWeights,
                              __read_only image3d_t inter,
                              __write_only image3d_t output,
                              int3 offset)
