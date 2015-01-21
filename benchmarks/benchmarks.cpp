@@ -45,10 +45,12 @@ int main(int argc, char *argv[])
 {
 	warmUpOpenCL();
 
-	int ks = 3;
+	// int ks = 9;
 	SimpleTimer timer;
 	int rep = 32;
-	for (int i = 32; i <= 256; i *= 2)
+	std::vector<int> k = {3, 9, 15, 27, 39, 51};
+	for(auto ks : k)
+	for(int i = 32; i <= 256; i *= 2)
 	{
 		std::cout << "\nImage size:  " << i
 		          << "\nKernel size: " << ks << std::endl;
@@ -73,17 +75,18 @@ int main(int argc, char *argv[])
 		std::cout << "OpenCL (average): \n" << (float)time / 1000000000.0f / (float)rep << std::endl;
 
 		// CPU
-		float* outputCPU = new float[i*i*i];
-		timer.start();
-		anyfold::cpu::convolve_3d(image, imageShape, kernel, kernelShape, outputCPU);
-		timer.end();
-		std::cout << "CPU (single core): \n";
-		timer.print(true);
+		// float* outputCPU = new float[i*i*i];
+		// timer.start();
+		// anyfold::cpu::convolve_3d(image, imageShape, kernel, kernelShape, outputCPU);
+		// timer.end();
+		// std::cout << "CPU (single core): \n";
+		// timer.print(true);
+		// delete[] outputCPU;
+
 
 		delete[] image;
 		delete[] kernel;
 		delete[] output;
-		delete[] outputCPU;
 	}	
 	return 0;
 }

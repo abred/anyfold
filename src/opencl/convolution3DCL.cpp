@@ -172,9 +172,9 @@ void Convolution3DCL::execute()
 				kernel.setArg(4, offset);
 				kernel.setArg(2, outputImage[d]);
 				kernel.setArg(3, outputImage[!d]);
-				std::cout << d << " " << size[0] << "x" << size[1] << "x" << size[2] << std::endl;
+				// std::cout << d << " " << size[0] << "x" << size[1] << "x" << size[2] << std::endl;
 				d = !d;
-				std::cout << d << " " << x << " " << y << " " << z << std::endl;
+				// std::cout << d << " " << x << " " << y << " " << z << std::endl;
 				queue.enqueueNDRangeKernel(kernel, 0,
 				                           cl::NDRange(size[0],
 				                                       size[1],
