@@ -43,7 +43,7 @@ std::string Convolution3DCL::getDeviceInfo(cl::Device device, cl_device_info inf
 }
 
 
-void Convolution3DCL::createProgramAndLoadKernel(const std::string& fileName,const std::string& kernelName, size_t filterSize)
+void Convolution3DCL::createProgramAndLoadKernel(const std::string& fileName,const std::string& kernelName, size_t const* filterSize)
 {
 	std::string content;
 	std::ifstream in(fileName, std::ios::in);
@@ -61,16 +61,26 @@ void Convolution3DCL::createProgramAndLoadKernel(const std::string& fileName,con
 }
 
 void Convolution3DCL::createProgram(const std::string& source, 
-                                    size_t filterSize)
+                                    size_t const* filterSize)
 {
 	cl::Program::Sources program_source(1, std::make_pair(source.c_str(), source.length()));
 
 	program = cl::Program(context, program_source, &status);
 	CHECK_ERROR(status, "cl::Program");
 
-	std::string defines = std::string("-D FILTER_SIZE=") + std::to_string(filterSize) +
-	                      // std::string(" -D FILTER_SIZE_HALF=") + std::to_string(1);
-	                      std::string(" -D FILTER_SIZE_HALF=") + std::to_string(filterSize/2);
+	std::string defines = std::string("-D FILTER_SIZE_X=") +
+	                        std::to_string(filterSize[2]) +
+	                      std::string(" -D FILTER_SIZE_Y=") +
+	                        std::to_string(filterSize[1]) +
+	                      std::string(" -D FILTER_SIZE_Z=") +
+	                        std::to_string(filterSize[0]) +
+	                      std::string(" -D FILTER_SIZE_X_HALF=") +
+	                        std::to_string(filterSize[2]/2) +
+	                      std::string(" -D FILTER_SIZE_Y_HALF=") +
+	                        std::to_string(filterSize[1]/2) +
+	                      std::string(" -D FILTER_SIZE_Z_HALF=") +
+	                        std::to_string(filterSize[0]/2);
+	std::cout << defines << std::endl;
 	status = program.build(devices,
 	                       defines.c_str(),
 	                       nullptr, nullptr);
@@ -113,9 +123,9 @@ void Convolution3DCL::setupKernelArgs(image_stack_cref image,
 	size[0] = image.shape()[0];
 	size[1] = image.shape()[1];
 	size[2] = image.shape()[2];
-	filterSize[0] = filterKernel.shape()[0];
+	filterSize[0] = filterKernel.shape()[2];
 	filterSize[1] = filterKernel.shape()[1];
-	filterSize[2] = filterKernel.shape()[2];
+	filterSize[2] = filterKernel.shape()[0];
 	const cl::ImageFormat format =  cl::ImageFormat(CL_R, CL_FLOAT);
 	inputImage = cl::Image3D(context,
 	                         CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
