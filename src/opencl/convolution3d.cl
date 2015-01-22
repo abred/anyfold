@@ -12,9 +12,9 @@ float currentWeight (__constant const float* filterWeights,
 	/* return filterWeights[(x+FILTER_SIZE_HALF) + */
 	/*                      (y+FILTER_SIZE_HALF) * FILTER_SIZE + */
 	/*                      (z+FILTER_SIZE_HALF) * FILTER_SIZE * FILTER_SIZE]; */
-	return filterWeights[(FILTER_SIZE-1-(x+FILTER_SIZE_HALF)) +
-	                     (FILTER_SIZE-1-(y+FILTER_SIZE_HALF)) * FILTER_SIZE +
-	                     (FILTER_SIZE-1-(z+FILTER_SIZE_HALF)) * FILTER_SIZE * FILTER_SIZE];
+	return filterWeights[(FILTER_SIZE_X-1-(x+FILTER_SIZE_X_HALF)) +
+	                     (FILTER_SIZE_Y-1-(y+FILTER_SIZE_Y_HALF)) * FILTER_SIZE_X +
+	                     (FILTER_SIZE_Z-1-(z+FILTER_SIZE_Z_HALF)) * FILTER_SIZE_X * FILTER_SIZE_Y];
 }
 
 __kernel void convolution3d (__read_only image3d_t input,
@@ -27,9 +27,12 @@ __kernel void convolution3d (__read_only image3d_t input,
 	                  get_global_id(2), 0};
 
 	float sum = 0.0f;
-	for(int z = -FILTER_SIZE_HALF; z <= FILTER_SIZE_HALF; z++) {
-		for(int y = -FILTER_SIZE_HALF; y <= FILTER_SIZE_HALF; y++) {
-			for(int x = -FILTER_SIZE_HALF; x <= FILTER_SIZE_HALF; x++) {
+	for(int z = -FILTER_SIZE_Z_HALF; z <= FILTER_SIZE_Z_HALF; z++)
+	{
+		for(int y = -FILTER_SIZE_Y_HALF; y <= FILTER_SIZE_Y_HALF; y++)
+		{
+			for(int x = -FILTER_SIZE_X_HALF; x <= FILTER_SIZE_X_HALF; x++)
+			{
 				sum += currentWeight(filterWeights, x, y, z)
 					* read_imagef(input, sampler, pos + (int4)(x,y,z,0)).x;
 			}

@@ -3,6 +3,7 @@
 #include "boost/test/unit_test.hpp"
 #include <boost/mpl/vector.hpp>
 #include "test_fixtures.hpp"
+#include "test_fixtures_asym.hpp"
 #include <numeric>
 #include <algorithm>
 #include "anyfold.hpp"
@@ -13,20 +14,30 @@
 static anyfold::storage local_order = boost::c_storage_order();
 
 typedef anyfold::convolutionFixture3D<3,32> fixture_3D_32_3;
+typedef anyfold::convolutionFixture3D<3,4> fixture_3D_4_3;
 typedef anyfold::convolutionFixture3D<3,64> fixture_3D_64_3;
 typedef anyfold::convolutionFixture3D<3,128> fixture_3D_128_3;
 typedef anyfold::convolutionFixture3D<3,256> fixture_3D_256_3;
 typedef anyfold::convolutionFixture3D<5,64> fixture_3D_64_5;
+typedef anyfold::convolutionFixture3D<9,64> fixture_3D_64_9;
 typedef anyfold::convolutionFixture3D<5,128> fixture_3D_128_5;
 
+typedef anyfold::convolutionFixture3DAsym<9,3,17,32> fixture_3D_asym_32_9_3_17;
+typedef anyfold::convolutionFixture3DAsym<11,5,17,32> fixture_3D_asym_32_11_5_17;
+typedef anyfold::convolutionFixture3DAsym<9,3,15,32> fixture_3D_asym_32_9_3_15;
+
 typedef boost::mpl::vector<
-	anyfold::default_3D_fixture,
-	fixture_3D_32_3,
-	fixture_3D_64_3,
-	fixture_3D_128_3,
-	fixture_3D_256_3,
-	fixture_3D_64_5,
-	fixture_3D_128_5
+	// fixture_3D_4_3
+	// , anyfold::default_3D_fixture
+	// , fixture_3D_32_3
+	// , fixture_3D_64_3
+	// , fixture_3D_128_3
+	// , fixture_3D_256_3
+	 // fixture_3D_64_9
+	fixture_3D_asym_32_9_3_17,
+	fixture_3D_asym_32_11_5_17,
+	fixture_3D_asym_32_9_3_15
+	// , fixture_3D_128_5
 	> Fixtures;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(trivial_convolve, T, Fixtures, T)
