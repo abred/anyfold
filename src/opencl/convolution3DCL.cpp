@@ -61,7 +61,7 @@ void Convolution3DCL::createProgramAndLoadKernel(const std::string& fileName, co
 }
 
 void Convolution3DCL::createProgram(const std::string& source, 
-                                    size_t const* filterSize)
+                                    size_t const* fs)
 {
 	cl::Program::Sources program_source(1, std::make_pair(source.c_str(), source.length()));
 
@@ -69,17 +69,17 @@ void Convolution3DCL::createProgram(const std::string& source,
 	CHECK_ERROR(status, "cl::Program");
 	
 	std::string defines = std::string("-D FILTER_SIZE_X=") +
-	                      std::to_string(filterSize[0]) +
+	                      std::to_string(fs[2]) +
 	                      std::string(" -D FILTER_SIZE_Y=") +
-	                      std::to_string(filterSize[1]) +
+	                      std::to_string(fs[1]) +
 	                      std::string(" -D FILTER_SIZE_Z=") +
-	                      std::to_string(filterSize[2]) +
+	                      std::to_string(fs[0]) +
 	                      std::string(" -D FILTER_SIZE_X_HALF=") +
-	                      std::to_string(filterSize[0]/2) +
+	                      std::to_string(fs[2]/2) +
 	                      std::string(" -D FILTER_SIZE_Y_HALF=") +
-	                      std::to_string(filterSize[1]/2) +
+	                      std::to_string(fs[1]/2) +
 	                      std::string(" -D FILTER_SIZE_Z_HALF=") +
-	                      std::to_string(filterSize[2]/2);
+	                      std::to_string(fs[0]/2);
 	status = program.build(devices,
 	                       defines.c_str(),
 	                       nullptr, nullptr);
@@ -119,12 +119,12 @@ void Convolution3DCL::setupKernelArgs(image_stack_cref image,
                                       image_stack_cref filterKernel,
                                       const std::vector<int>& offset)
 {
-	imageSize[0] = image.shape()[0];
+	imageSize[0] = image.shape()[2];
 	imageSize[1] = image.shape()[1];
-	imageSize[2] = image.shape()[2];
-	filterSize[0] = filterKernel.shape()[0];
+	imageSize[2] = image.shape()[0];
+	filterSize[0] = filterKernel.shape()[2];
 	filterSize[1] = filterKernel.shape()[1];
-	filterSize[2] = filterKernel.shape()[2];
+	filterSize[2] = filterKernel.shape()[0];
 	imageSizeInner[0] = imageSize[0]-2*(filterSize[0]/2);
 	imageSizeInner[1] = imageSize[1]-2*(filterSize[1]/2);
 	imageSizeInner[2] = imageSize[2]-2*(filterSize[2]/2);
@@ -178,6 +178,7 @@ void Convolution3DCL::getResult(image_stack_ref result)
 	region[0] = imageSizeInner[0]*sizeof(float);
 	region[1] = imageSizeInner[1];
 	region[2] = imageSizeInner[2];
+	std::cout << imageSizeInner[0] << " " << imageSizeInner[1] << " " << imageSizeInner[2] << std::endl;
 	status = queue.enqueueReadBufferRect(outputBuffer, CL_TRUE,
 	                                     bufOffset,
 	                                     hostOffset,

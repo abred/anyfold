@@ -2,6 +2,7 @@
 #define BOOST_TEST_MODULE OPENCL_CONVOLUTION
 #include "boost/test/unit_test.hpp"
 #include <boost/mpl/vector.hpp>
+#include "test_fixtures_asym.hpp"
 #include "test_fixtures.hpp"
 #include <numeric>
 #include <algorithm>
@@ -17,16 +18,20 @@ typedef anyfold::convolutionFixture3D<3,64> fixture_3D_64_3;
 typedef anyfold::convolutionFixture3D<3,128> fixture_3D_128_3;
 typedef anyfold::convolutionFixture3D<3,256> fixture_3D_256_3;
 typedef anyfold::convolutionFixture3D<5,64> fixture_3D_64_5;
-typedef anyfold::convolutionFixture3D<5,128> fixture_3D_128_5;
+
+typedef anyfold::convolutionFixture3DAsym<5,9,13,64> fixture_3D_64_5_9_13;
+typedef anyfold::convolutionFixture3DAsym<21,3,11,64> fixture_3D_64_21_3_11;
 
 typedef boost::mpl::vector<
-	anyfold::default_3D_fixture
-	, fixture_3D_32_3
-	, fixture_3D_64_3
-	, fixture_3D_128_3
+	// anyfold::default_3D_fixture
+	// , fixture_3D_32_3
+	// , fixture_3D_64_3
+	// , fixture_3D_128_3
 	// , fixture_3D_256_3
 	// , fixture_3D_64_5
 	// , fixture_3D_128_5
+	 fixture_3D_64_5_9_13
+	, fixture_3D_64_21_3_11
 	> Fixtures;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(trivial_convolve, T, Fixtures, T)
