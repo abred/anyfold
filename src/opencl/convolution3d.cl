@@ -9,15 +9,17 @@ float currentWeight (
 	__constant const float* filterWeights,
 	const int x, const int y, const int z)
 {
-	return filterWeights[(FILTER_SIZE_X-1 - (x+1)) +
-	                     (FILTER_SIZE_Y-1 - (y+1)) * FILTER_SIZE_X +
-	                     (FILTER_SIZE_Z-1 - (z+1)) * FILTER_SIZE_Y * FILTER_SIZE_X];
+	int xx = (FILTER_SIZE_X-1 - (x+1));
+	int yy = (FILTER_SIZE_Y-1 - (y+1));
+	int zz = (FILTER_SIZE_Z-1 - (z+1));
+	if(xx < 0 || yy < 0 || zz < 0)
+	{
+		return 0.0f;
+	}
 
-	/* int4 pos = {FILTER_SIZE_X-1 - (x+1), */
-	/*             FILTER_SIZE_Y-1 - (y+1), */
-	/*             FILTER_SIZE_Z-1 - (z+1), */
-	/*             0}; */
-	/* return read_imagef(filterWeights, sampler, pos).x; */
+	return filterWeights[xx +
+	                     yy * FILTER_SIZE_X +
+	                     zz * FILTER_SIZE_Y * FILTER_SIZE_X];
 }
 
 __kernel void convolution3d (__global float* input,
@@ -39,22 +41,16 @@ __kernel void convolution3d (__global float* input,
 	             -FILTER_SIZE_Y_HALF + offset.y + 1 + (get_global_id(1)+FILTER_SIZE_Y_HALF),
 	             -FILTER_SIZE_Z_HALF + offset.z + 1 + (get_global_id(2)+FILTER_SIZE_Z_HALF),
 	             0};
-	/* int4 pos2 = {get_global_id(0)+FILTER_SIZE_X_HALF, */
-	/*             get_global_id(1)+FILTER_SIZE_Y_HALF, */
-	/*             get_global_id(2)+FILTER_SIZE_Z_HALF, */
-	/*             0}; */
-	int gidx2 = pos2.z * (get_global_size(1)+2*FILTER_SIZE_Y_HALF) *
-		(get_global_size(0)+2*FILTER_SIZE_X_HALF) +
+
+	int gidx2 = pos2.z * (get_global_size(1)+2*FILTER_SIZE_Y_HALF) * (get_global_size(0)+2*FILTER_SIZE_X_HALF) +
 		    pos2.y * (get_global_size(0)+2*FILTER_SIZE_X_HALF) +
 		    pos2.x;
 	int lidx = (get_local_id(2)+1) * (get_local_size(1)+2) * (get_local_size(0)+2) +
 		   (get_local_id(1)+1) * (get_local_size(0)+2) +
 		   (get_local_id(0)+1);
 
-	/* float oldVal = read_imagef(inter, sampler, pos).x; */
 	float oldVal = inter[gidx];
 
-	/* values[lidx] = read_imagef(input, sampler, pos2).x; */
 	values[lidx] = input[gidx2];
 
 	if(get_local_id(0) == 0)
@@ -328,5 +324,4 @@ __kernel void convolution3d (__global float* input,
 	}
 
 	output[gidx] = sum;
-	/* write_imagef(output, pos, sum); */
 }
