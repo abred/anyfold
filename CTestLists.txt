@@ -1,2 +1,6 @@
 
 add_test(NAME test_cpu_convolve COMMAND test_cpu_convolve)
+
+if(BUILD_OPENCL_ANYFOLD)
+add_test(NAME test_opencl_convolve COMMAND test_opencl_convolve)
+endif()
