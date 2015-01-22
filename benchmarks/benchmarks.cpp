@@ -45,18 +45,20 @@ int main(int argc, char *argv[])
 {
 	warmUpOpenCL();
 
-	int ks = 3;
+	// int ks = 9;
 	SimpleTimer timer;
 	int rep = 32;
-	for (int i = 8; i <= 256; i *= 2)
+	std::vector<std::vector<int>> k = {{3,9,15}, {9,21,27}, {15,27,33}, {27,39,51}, {39, 51, 21}};
+	for(auto ks : k)
+	for(int i = 64; i <= 256; i *= 2)
 	{
 		std::cout << "\nImage size:  " << i
-		          << "\nKernel size: " << ks << std::endl;
+		          << "\nKernel size: " << ks[0] << "x" << ks[1] << "x" << ks[2] << std::endl;
 		
 		float* image = genRandomArray(i*i*i, 0.0f, 1.0f);
 		int imageShape[] = {i, i, i};
-		float* kernel = genRandomArray(ks*ks*ks, 0.0f, 1.0f);
-		int kernelShape[] = {ks, ks, ks};
+		float* kernel = genRandomArray(ks[0]*ks[1]*ks[2], 0.0f, 1.0f);
+		int kernelShape[] = {ks[0], ks[1], ks[2]};
 		float* output = new float[i*i*i];
 
 		uint64_t time = 0;
@@ -73,17 +75,18 @@ int main(int argc, char *argv[])
 		std::cout << "OpenCL (average): \n" << (float)time / 1000000000.0f / (float)rep << std::endl;
 
 		// CPU
-		float* outputCPU = new float[i*i*i];
-		timer.start();
-		anyfold::cpu::convolve_3d(image, imageShape, kernel, kernelShape, outputCPU);
-		timer.end();
-		std::cout << "CPU (single core): \n";
-		timer.print(true);
+		// float* outputCPU = new float[i*i*i];
+		// timer.start();
+		// anyfold::cpu::convolve_3d(image, imageShape, kernel, kernelShape, outputCPU);
+		// timer.end();
+		// std::cout << "CPU (single core): \n";
+		// timer.print(true);
+		// delete[] outputCPU;
+
 
 		delete[] image;
 		delete[] kernel;
 		delete[] output;
-		delete[] outputCPU;
 	}	
 	return 0;
 }

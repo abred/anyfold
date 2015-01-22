@@ -178,7 +178,7 @@ void Convolution3DCL::getResult(image_stack_ref result)
 	region[0] = imageSizeInner[0]*sizeof(float);
 	region[1] = imageSizeInner[1];
 	region[2] = imageSizeInner[2];
-	std::cout << imageSizeInner[0] << " " << imageSizeInner[1] << " " << imageSizeInner[2] << std::endl;
+
 	status = queue.enqueueReadBufferRect(outputBuffer, CL_TRUE,
 	                                     bufOffset,
 	                                     hostOffset,
