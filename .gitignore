@@ -1,3 +1,11 @@
+# Backup files
+*~
+[#]*[#]
+.[#]*
+
+# Build folder
+build/
+
 # Compiled Object files
 *.slo
 *.lo
