@@ -88,10 +88,10 @@ void Convolution3DCLImage::createProgram(const std::string& source,
 
 	std::string log;
 	program.getBuildInfo(devices[0],CL_PROGRAM_BUILD_LOG,&log);
-	if(log.size() > 0)
-	{
-		std::cout << log << std::endl;
-	}
+// 	if(log.size() > 0)
+// 	{
+// 		std::cout << log << std::endl;
+// 	}
 }
 
 void Convolution3DCLImage::loadKernel(const std::string& kernelName)

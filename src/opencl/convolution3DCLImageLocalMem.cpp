@@ -86,10 +86,10 @@ void Convolution3DCLImageLocalMem::createProgram(const std::string& source,
 
 	std::string log;
 	program.getBuildInfo(devices[0],CL_PROGRAM_BUILD_LOG,&log);
-	if(log.size() > 0)
-	{
-		std::cout << log << std::endl;
-	}
+// 	if(log.size() > 0)
+// 	{
+// 		std::cout << log << std::endl;
+// 	}
 	CHECK_ERROR(status, "cl::Program::Build");
 }
 
@@ -103,7 +103,7 @@ bool Convolution3DCLImageLocalMem::setupCLcontext()
 {
 	status = cl::Platform::get(&platforms);
 
-	status = platforms[0].getDevices(CL_DEVICE_TYPE_GPU,&devices);
+	status = platforms[0].getDevices(CL_DEVICE_TYPE_ALL,&devices);
 	CHECK_ERROR(status, "cl::Platform::getDevices");
 
 	context = cl::Context(devices,nullptr,nullptr,nullptr,&status);

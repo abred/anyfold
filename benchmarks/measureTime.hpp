@@ -24,19 +24,15 @@ public:
 	{
 		if(longOutput)
 		{
-			std::cout << "Zeit: "
-			          << std::chrono::duration_cast<std::chrono::seconds>(endTime-startTime).count()
+			std::cout << std::chrono::duration_cast<std::chrono::seconds>(endTime-startTime).count()
 			          << "."
-			          << std::chrono::duration_cast<std::chrono::milliseconds>(endTime-startTime).count()
-			          << std::endl;
+			          << std::chrono::duration_cast<std::chrono::milliseconds>(endTime-startTime).count();
 		}
 		else
 		{
 			std::cout << std::chrono::duration_cast<std::chrono::seconds>(endTime-startTime).count()
 			          << "."
-			          << std::chrono::duration_cast<std::chrono::milliseconds>(endTime-startTime).count()
-			          << std::endl;
-
+			          << std::chrono::duration_cast<std::chrono::milliseconds>(endTime-startTime).count();
 		}
 	};
 
