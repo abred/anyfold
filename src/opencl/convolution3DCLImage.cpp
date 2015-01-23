@@ -84,14 +84,13 @@ void Convolution3DCLImage::createProgram(const std::string& source,
 	                       defines.c_str(),
 	                       nullptr, nullptr);
 
+	if(program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices[0]) == CL_BUILD_ERROR)
+	{
+		std::string log;
+		program.getBuildInfo(devices[0], CL_PROGRAM_BUILD_LOG, &log);
+		std::cout << log << std::endl;
+	}
 	CHECK_ERROR(status, "cl::Program::Build");
-
-	std::string log;
-	program.getBuildInfo(devices[0],CL_PROGRAM_BUILD_LOG,&log);
-// 	if(log.size() > 0)
-// 	{
-// 		std::cout << log << std::endl;
-// 	}
 }
 
 void Convolution3DCLImage::loadKernel(const std::string& kernelName)
@@ -120,9 +119,9 @@ void Convolution3DCLImage::setupKernelArgs(image_stack_cref image,
                                       image_stack_cref filterKernel,
                                       const std::vector<int>& offset)
 {
-	imageSize[0] = image.shape()[0];
+	imageSize[0] = image.shape()[2];
 	imageSize[1] = image.shape()[1];
-	imageSize[2] = image.shape()[2];
+	imageSize[2] = image.shape()[0];
 	filterSize[0] = filterKernel.shape()[2];
 	filterSize[1] = filterKernel.shape()[1];
 	filterSize[2] = filterKernel.shape()[0];
@@ -167,9 +166,9 @@ void Convolution3DCLImage::getResult(image_stack_ref result)
 	origin[1] = 0;
 	origin[2] = 0;
 	cl::size_t<3> region;
-	region[0] = result.shape()[0];
+	region[0] = result.shape()[2];
 	region[1] = result.shape()[1];
-	region[2] = result.shape()[2];
+	region[2] = result.shape()[0];
 	status = queue.enqueueReadImage(outputImage, CL_TRUE,
 	                                origin, region, 0, 0,
 	                                result.data());

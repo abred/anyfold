@@ -18,7 +18,9 @@ namespace anyfold {
 template <unsigned short KernelDimSizeX = 3,
           unsigned short KernelDimSizeY = 3,
           unsigned short KernelDimSizeZ = 3,
-	  unsigned ImageDimSize = 8
+          unsigned ImageDimSizeX = 8,
+          unsigned ImageDimSizeY = 8,
+	  unsigned ImageDimSizeZ = 8
 	  >
 struct convolutionFixture3DAsym
 {
@@ -60,25 +62,25 @@ struct convolutionFixture3DAsym
 public:
   
 	convolutionFixture3DAsym():
-		image_size_((unsigned)std::pow(ImageDimSize,3)),
-		image_shape_(3,ImageDimSize),
-		padded_image_shape_ ({ImageDimSize+2*(KernelDimSizeX/2),
-		                      ImageDimSize+2*(KernelDimSizeY/2),
-		                      ImageDimSize+2*(KernelDimSizeZ/2)}),
+		image_size_(ImageDimSizeX * ImageDimSizeY * ImageDimSizeZ),
+		image_shape_({ImageDimSizeX, ImageDimSizeY, ImageDimSizeZ}),
+		padded_image_shape_ ({ImageDimSizeX+2*(KernelDimSizeX/2),
+		                      ImageDimSizeY+2*(KernelDimSizeY/2),
+		                      ImageDimSizeZ+2*(KernelDimSizeZ/2)}),
 
-		image_        (boost::extents[ImageDimSize][ImageDimSize][ImageDimSize]),
-		padded_image_ (boost::extents[ImageDimSize+2*(KernelDimSizeX/2)][ImageDimSize+2*(KernelDimSizeY/2)][ImageDimSize+2*(KernelDimSizeZ/2)]),
-		output_       (boost::extents[ImageDimSize][ImageDimSize][ImageDimSize]),
-		padded_output_(boost::extents[ImageDimSize+2*(KernelDimSizeX/2)][ImageDimSize+2*(KernelDimSizeY/2)][ImageDimSize+2*(KernelDimSizeZ/2)]),
+		image_        (boost::extents[ImageDimSizeX][ImageDimSizeY][ImageDimSizeZ]),
+		padded_image_ (boost::extents[ImageDimSizeX+2*(KernelDimSizeX/2)][ImageDimSizeY+2*(KernelDimSizeY/2)][ImageDimSizeZ+2*(KernelDimSizeZ/2)]),
+		output_       (boost::extents[ImageDimSizeX][ImageDimSizeY][ImageDimSizeZ]),
+		padded_output_(boost::extents[ImageDimSizeX+2*(KernelDimSizeX/2)][ImageDimSizeY+2*(KernelDimSizeY/2)][ImageDimSizeZ+2*(KernelDimSizeZ/2)]),
 
-		image_folded_by_horizontal_(boost::extents[ImageDimSize][ImageDimSize][ImageDimSize]),
-		image_folded_by_vertical_  (boost::extents[ImageDimSize][ImageDimSize][ImageDimSize]),
-		image_folded_by_depth_     (boost::extents[ImageDimSize][ImageDimSize][ImageDimSize]),
-		image_folded_by_all1_      (boost::extents[ImageDimSize][ImageDimSize][ImageDimSize]),
-		padded_image_folded_by_horizontal_(boost::extents[ImageDimSize+2*(KernelDimSizeX/2)][ImageDimSize+2*(KernelDimSizeY/2)][ImageDimSize+2*(KernelDimSizeZ/2)]),
-		padded_image_folded_by_vertical_  (boost::extents[ImageDimSize+2*(KernelDimSizeX/2)][ImageDimSize+2*(KernelDimSizeY/2)][ImageDimSize+2*(KernelDimSizeZ/2)]),
-		padded_image_folded_by_depth_     (boost::extents[ImageDimSize+2*(KernelDimSizeX/2)][ImageDimSize+2*(KernelDimSizeY/2)][ImageDimSize+2*(KernelDimSizeZ/2)]),
-		padded_image_folded_by_all1_      (boost::extents[ImageDimSize+2*(KernelDimSizeX/2)][ImageDimSize+2*(KernelDimSizeY/2)][ImageDimSize+2*(KernelDimSizeZ/2)]),
+		image_folded_by_horizontal_(boost::extents[ImageDimSizeX][ImageDimSizeY][ImageDimSizeZ]),
+		image_folded_by_vertical_  (boost::extents[ImageDimSizeX][ImageDimSizeY][ImageDimSizeZ]),
+		image_folded_by_depth_     (boost::extents[ImageDimSizeX][ImageDimSizeY][ImageDimSizeZ]),
+		image_folded_by_all1_      (boost::extents[ImageDimSizeX][ImageDimSizeY][ImageDimSizeZ]),
+		padded_image_folded_by_horizontal_(boost::extents[ImageDimSizeX+2*(KernelDimSizeX/2)][ImageDimSizeY+2*(KernelDimSizeY/2)][ImageDimSizeZ+2*(KernelDimSizeZ/2)]),
+		padded_image_folded_by_vertical_  (boost::extents[ImageDimSizeX+2*(KernelDimSizeX/2)][ImageDimSizeY+2*(KernelDimSizeY/2)][ImageDimSizeZ+2*(KernelDimSizeZ/2)]),
+		padded_image_folded_by_depth_     (boost::extents[ImageDimSizeX+2*(KernelDimSizeX/2)][ImageDimSizeY+2*(KernelDimSizeY/2)][ImageDimSizeZ+2*(KernelDimSizeZ/2)]),
+		padded_image_folded_by_all1_      (boost::extents[ImageDimSizeX+2*(KernelDimSizeX/2)][ImageDimSizeY+2*(KernelDimSizeY/2)][ImageDimSizeZ+2*(KernelDimSizeZ/2)]),
 
 		kernel_size_(KernelDimSizeX * KernelDimSizeY * KernelDimSizeZ),
 		// kernel_size_((unsigned)std::pow(KernelDimSize,3)),
@@ -119,9 +121,9 @@ public:
 		}
 
 		//FILL IMAGES
-		unsigned padded_image_size = (ImageDimSize+2*halfKernelX) *
-		                             (ImageDimSize+2*halfKernelY) *
-		                             (ImageDimSize+2*halfKernelZ);
+		unsigned padded_image_size = (ImageDimSizeX+2*halfKernelX) *
+		                             (ImageDimSizeY+2*halfKernelY) *
+		                             (ImageDimSizeZ+2*halfKernelZ);
 		
 		std::fill(padded_image_.data(),
 			  padded_image_.data() + padded_image_size,  0.f);
@@ -150,9 +152,9 @@ public:
 
 
 		//PADD THE IMAGE FOR CONVOLUTION
-		range axis_subrangeX = range(halfKernelX,halfKernelX+ImageDimSize);
-		range axis_subrangeY = range(halfKernelY,halfKernelY+ImageDimSize);
-		range axis_subrangeZ = range(halfKernelZ,halfKernelZ+ImageDimSize);
+		range axis_subrangeX = range(halfKernelX,halfKernelX+ImageDimSizeX);
+		range axis_subrangeY = range(halfKernelY,halfKernelY+ImageDimSizeY);
+		range axis_subrangeZ = range(halfKernelZ,halfKernelZ+ImageDimSizeZ);
 		image_stack_view padded_image_original = padded_image_[ boost::indices[axis_subrangeX][axis_subrangeY][axis_subrangeZ] ];
 		padded_image_original = image_;
     
@@ -182,15 +184,7 @@ public:
 
 	}
   
-	virtual ~convolutionFixture3DAsym()  { 
-    
-	};
-    
-	static const unsigned image_axis_size = ImageDimSize;
-	static const unsigned kernel_axis_size_X = KernelDimSizeX;
-	static const unsigned kernel_axis_size_Y = KernelDimSizeY;
-	static const unsigned kernel_axis_size_Z = KernelDimSizeZ;
-
+	virtual ~convolutionFixture3DAsym() {};
 };
 
 typedef convolutionFixture3DAsym<> default_3D_fixture_asym;

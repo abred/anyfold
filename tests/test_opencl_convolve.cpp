@@ -13,12 +13,14 @@
 
 static anyfold::storage local_order = boost::c_storage_order();
 
-typedef anyfold::convolutionFixture3DAsym<5,9,13,64> fixture_3D_64_5_9_13;
-typedef anyfold::convolutionFixture3DAsym<21,3,11,64> fixture_3D_64_21_3_11;
+typedef anyfold::convolutionFixture3DAsym<13,9,19, 20,32,32> fixture_3D_20_32_32_13_9_19;
+typedef anyfold::convolutionFixture3DAsym<5,9,3, 64,32,16> fixture_3D_64_32_16_5_9_13;
+typedef anyfold::convolutionFixture3DAsym<21,3,11, 64,64,40> fixture_3D_64_64_40_21_3_11;
 
 typedef boost::mpl::vector<
-	  fixture_3D_64_5_9_13
-	, fixture_3D_64_21_3_11
+	fixture_3D_20_32_32_13_9_19
+	, fixture_3D_64_32_16_5_9_13
+	, fixture_3D_64_64_40_21_3_11
 	> Fixtures;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(trivial_convolveBuffer, T, Fixtures, T)
@@ -530,3 +532,4 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(all1_convolveImageLocalMem, T, Fixtures, T)
 				       T::output_.num_elements());
 	BOOST_REQUIRE_CLOSE(l2norm, 0, .00001);
 }
+

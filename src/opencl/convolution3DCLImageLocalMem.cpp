@@ -84,12 +84,12 @@ void Convolution3DCLImageLocalMem::createProgram(const std::string& source,
 	                       defines.c_str(),
 	                       nullptr, nullptr);
 
-	std::string log;
-	program.getBuildInfo(devices[0],CL_PROGRAM_BUILD_LOG,&log);
-// 	if(log.size() > 0)
-// 	{
-// 		std::cout << log << std::endl;
-// 	}
+	if(program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices[0]) == CL_BUILD_ERROR)
+	{
+		std::string log;
+		program.getBuildInfo(devices[0], CL_PROGRAM_BUILD_LOG, &log);
+		std::cout << log << std::endl;
+	}
 	CHECK_ERROR(status, "cl::Program::Build");
 }
 
@@ -119,9 +119,9 @@ void Convolution3DCLImageLocalMem::setupKernelArgs(image_stack_cref image,
                                       image_stack_cref filterKernel,
                                       const std::vector<int>& offset)
 {
-	size[0] = image.shape()[0];
+	size[0] = image.shape()[2];
 	size[1] = image.shape()[1];
-	size[2] = image.shape()[2];
+	size[2] = image.shape()[0];
 	filterSize[0] = filterKernel.shape()[2];
 	filterSize[1] = filterKernel.shape()[1];
 	filterSize[2] = filterKernel.shape()[0];
@@ -161,19 +161,9 @@ void Convolution3DCLImageLocalMem::setupKernelArgs(image_stack_cref image,
 	                                 0, 0, const_cast<float*>(filterKernel.data()), &status);
 	CHECK_ERROR(status, "cl::Image3D");
 
-	// filterWeightsBuffer = cl::Buffer(context,
-	//                                  CL_MEM_READ_ONLY |
-	//                                  CL_MEM_COPY_HOST_PTR,
-	//                                  sizeof(float) * filterKernel.num_elements(),
-	//                                  const_cast<float*>(filterKernel.data()), &status);
-	// CHECK_ERROR(status, "cl::Buffer");
-
 	kernel.setArg(0,inputImage);
-	// kernel.setArg(1,filterWeightsBuffer);
 	kernel.setArg(1,filterWeightsImage);
 	kernel.setArg(2,outputImage[0]);
-
-	// std::cout << image << std::endl;
 }
 
 void Convolution3DCLImageLocalMem::execute()
@@ -189,9 +179,7 @@ void Convolution3DCLImageLocalMem::execute()
 				kernel.setArg(4, offset);
 				kernel.setArg(2, outputImage[d]);
 				kernel.setArg(3, outputImage[!d]);
-				// std::cout << d << " " << size[0] << "x" << size[1] << "x" << size[2] << std::endl;
 				d = !d;
-				// std::cout << d << " " << x << " " << y << " " << z << std::endl;
 				queue.enqueueNDRangeKernel(kernel, 0,
 				                           cl::NDRange(size[0],
 				                                       size[1],
@@ -211,13 +199,12 @@ void Convolution3DCLImageLocalMem::getResult(image_stack_ref result)
 	origin[1] = 0;
 	origin[2] = 0;
 	cl::size_t<3> region;
-	region[0] = result.shape()[0];
+	region[0] = result.shape()[2];
 	region[1] = result.shape()[1];
-	region[2] = result.shape()[2];
+	region[2] = result.shape()[0];
 	status = queue.enqueueReadImage(outputImage[outputSwap], CL_TRUE,
 	                                origin, region, 0, 0,
 	                                result.data());
-	// std::cout << result << std::endl;
 	CHECK_ERROR(status, "Queue::enqueueReadImage");
 }
 

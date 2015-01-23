@@ -84,12 +84,12 @@ void Convolution3DCLBuffer::createProgram(const std::string& source,
 	                       defines.c_str(),
 	                       nullptr, nullptr);
 
-	std::string log;
-	program.getBuildInfo(devices[0],CL_PROGRAM_BUILD_LOG,&log);
-// 	if(log.size() > 0)
-// 	{
-// 		std::cout << log << std::endl;
-// 	}
+	if(program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices[0]) == CL_BUILD_ERROR)
+	{
+		std::string log;
+		program.getBuildInfo(devices[0], CL_PROGRAM_BUILD_LOG, &log);
+		std::cout << log << std::endl;
+	}
 	CHECK_ERROR(status, "cl::Program::Build");
 }
 
