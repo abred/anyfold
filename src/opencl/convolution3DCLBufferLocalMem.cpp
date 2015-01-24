@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <stdexcept>
 
 #include "opencl/convolution3DCLBufferLocalMem.hpp"
 
@@ -226,143 +228,144 @@ void Convolution3DCLBufferLocalMem::checkError(cl_int status, const char* label,
 		return;
 	}
 
-	std::cerr << "OpenCL error (in file " << file << " in function " << label << ", line " << line << "): ";
+	std::stringstream sstr;
+	sstr << "OpenCL error (in file " << file << " in function " << label << ", line " << line << "): ";
 	switch(status)
 	{
 	case CL_BUILD_PROGRAM_FAILURE:
-		std::cerr << "CL_BUILD_PROGRAM_FAILURE" << std::endl;
+		sstr << "CL_BUILD_PROGRAM_FAILURE" << std::endl;
 		break;
 	case CL_COMPILER_NOT_AVAILABLE:
-		std::cerr << "CL_COMPILER_NOT_AVAILABLE" << std::endl;
+		sstr << "CL_COMPILER_NOT_AVAILABLE" << std::endl;
 		break;
 	case CL_DEVICE_NOT_AVAILABLE:
-		std::cerr << "CL_DEVICE_NOT_AVAILABLE" << std::endl;
+		sstr << "CL_DEVICE_NOT_AVAILABLE" << std::endl;
 		break;
 	case CL_DEVICE_NOT_FOUND:
-		std::cerr << "CL_DEVICE_NOT_FOUND" << std::endl;
+		sstr << "CL_DEVICE_NOT_FOUND" << std::endl;
 		break;
 	case CL_IMAGE_FORMAT_MISMATCH:
-		std::cerr << "CL_IMAGE_FORMAT_MISMATCH" << std::endl;
+		sstr << "CL_IMAGE_FORMAT_MISMATCH" << std::endl;
 		break;
 	case CL_IMAGE_FORMAT_NOT_SUPPORTED:
-		std::cerr << "CL_IMAGE_FORMAT_NOT_SUPPORTED" << std::endl;
+		sstr << "CL_IMAGE_FORMAT_NOT_SUPPORTED" << std::endl;
 		break;
 	case CL_INVALID_ARG_INDEX:
-		std::cerr << "CL_INVALID_ARG_INDEX" << std::endl;
+		sstr << "CL_INVALID_ARG_INDEX" << std::endl;
 		break;
 	case CL_INVALID_ARG_SIZE:
-		std::cerr << "CL_INVALID_ARG_SIZE" << std::endl;
+		sstr << "CL_INVALID_ARG_SIZE" << std::endl;
 		break;
 	case CL_INVALID_ARG_VALUE:
-		std::cerr << "CL_INVALID_ARG_VALUE" << std::endl;
+		sstr << "CL_INVALID_ARG_VALUE" << std::endl;
 		break;
 	case CL_INVALID_BINARY:
-		std::cerr << "CL_INVALID_BINARY" << std::endl;
+		sstr << "CL_INVALID_BINARY" << std::endl;
 		break;
 	case CL_INVALID_BUFFER_SIZE:
-		std::cerr << "CL_INVALID_BUFFER_SIZE" << std::endl;
+		sstr << "CL_INVALID_BUFFER_SIZE" << std::endl;
 		break;
 	case CL_INVALID_BUILD_OPTIONS:
-		std::cerr << "CL_INVALID_BUILD_OPTIONS" << std::endl;
+		sstr << "CL_INVALID_BUILD_OPTIONS" << std::endl;
 		break;
 	case CL_INVALID_COMMAND_QUEUE:
-		std::cerr << "CL_INVALID_COMMAND_QUEUE" << std::endl;
+		sstr << "CL_INVALID_COMMAND_QUEUE" << std::endl;
 		break;
 	case CL_INVALID_CONTEXT:
-		std::cerr << "CL_INVALID_CONTEXT" << std::endl;
+		sstr << "CL_INVALID_CONTEXT" << std::endl;
 		break;
 	case CL_INVALID_DEVICE:
-		std::cerr << "CL_INVALID_DEVICE" << std::endl;
+		sstr << "CL_INVALID_DEVICE" << std::endl;
 		break;
 	case CL_INVALID_DEVICE_TYPE:
-		std::cerr << "CL_INVALID_DEVICE_TYPE" << std::endl;
+		sstr << "CL_INVALID_DEVICE_TYPE" << std::endl;
 		break;
 	case CL_INVALID_EVENT:
-		std::cerr << "CL_INVALID_EVENT" << std::endl;
+		sstr << "CL_INVALID_EVENT" << std::endl;
 		break;
 	case CL_INVALID_EVENT_WAIT_LIST:
-		std::cerr << "CL_INVALID_EVENT_WAIT_LIST" << std::endl;
+		sstr << "CL_INVALID_EVENT_WAIT_LIST" << std::endl;
 		break;
 	case CL_INVALID_GL_OBJECT:
-		std::cerr << "CL_INVALID_GL_OBJECT" << std::endl;
+		sstr << "CL_INVALID_GL_OBJECT" << std::endl;
 		break;
 	case CL_INVALID_GLOBAL_OFFSET:
-		std::cerr << "CL_INVALID_GLOBAL_OFFSET" << std::endl;
+		sstr << "CL_INVALID_GLOBAL_OFFSET" << std::endl;
 		break;
 	case CL_INVALID_HOST_PTR:
-		std::cerr << "CL_INVALID_HOST_PTR" << std::endl;
+		sstr << "CL_INVALID_HOST_PTR" << std::endl;
 		break;
 	case CL_INVALID_IMAGE_FORMAT_DESCRIPTOR:
-		std::cerr << "CL_INVALID_IMAGE_FORMAT_DESCRIPTOR" << std::endl;
+		sstr << "CL_INVALID_IMAGE_FORMAT_DESCRIPTOR" << std::endl;
 		break;
 	case CL_INVALID_IMAGE_SIZE:
-		std::cerr << "CL_INVALID_IMAGE_SIZE" << std::endl;
+		sstr << "CL_INVALID_IMAGE_SIZE" << std::endl;
 		break;
 	case CL_INVALID_KERNEL_NAME:
-		std::cerr << "CL_INVALID_KERNEL_NAME" << std::endl;
+		sstr << "CL_INVALID_KERNEL_NAME" << std::endl;
 		break;
 	case CL_INVALID_KERNEL:
-		std::cerr << "CL_INVALID_KERNEL" << std::endl;
+		sstr << "CL_INVALID_KERNEL" << std::endl;
 		break;
 	case CL_INVALID_KERNEL_ARGS:
-		std::cerr << "CL_INVALID_KERNEL_ARGS" << std::endl;
+		sstr << "CL_INVALID_KERNEL_ARGS" << std::endl;
 		break;
 	case CL_INVALID_KERNEL_DEFINITION:
-		std::cerr << "CL_INVALID_KERNEL_DEFINITION" << std::endl;
+		sstr << "CL_INVALID_KERNEL_DEFINITION" << std::endl;
 		break;
 	case CL_INVALID_MEM_OBJECT:
-		std::cerr << "CL_INVALID_MEM_OBJECT" << std::endl;
+		sstr << "CL_INVALID_MEM_OBJECT" << std::endl;
 		break;
 	case CL_INVALID_OPERATION:
-		std::cerr << "CL_INVALID_OPERATION" << std::endl;
+		sstr << "CL_INVALID_OPERATION" << std::endl;
 		break;
 	case CL_INVALID_PLATFORM:
-		std::cerr << "CL_INVALID_PLATFORM" << std::endl;
+		sstr << "CL_INVALID_PLATFORM" << std::endl;
 		break;
 	case CL_INVALID_PROGRAM:
-		std::cerr << "CL_INVALID_PROGRAM" << std::endl;
+		sstr << "CL_INVALID_PROGRAM" << std::endl;
 		break;
 	case CL_INVALID_PROGRAM_EXECUTABLE:
-		std::cerr << "CL_INVALID_PROGRAM_EXECUTABLE" << std::endl;
+		sstr << "CL_INVALID_PROGRAM_EXECUTABLE" << std::endl;
 		break;
 	case CL_INVALID_QUEUE_PROPERTIES:
-		std::cerr << "CL_INVALID_QUEUE_PROPERTIES" << std::endl;
+		sstr << "CL_INVALID_QUEUE_PROPERTIES" << std::endl;
 		break;
 	case CL_INVALID_SAMPLER:
-		std::cerr << "CL_INVALID_SAMPLER" << std::endl;
+		sstr << "CL_INVALID_SAMPLER" << std::endl;
 		break;
 	case CL_INVALID_VALUE:
-		std::cerr << "CL_INVALID_VALUE" << std::endl;
+		sstr << "CL_INVALID_VALUE" << std::endl;
 		break;
 	case CL_INVALID_WORK_DIMENSION:
-		std::cerr << "CL_INVALID_WORK_DIMENSION" << std::endl;
+		sstr << "CL_INVALID_WORK_DIMENSION" << std::endl;
 		break;
 	case CL_INVALID_WORK_GROUP_SIZE:
-		std::cerr << "CL_INVALID_WORK_GROUP_SIZE" << std::endl;
+		sstr << "CL_INVALID_WORK_GROUP_SIZE" << std::endl;
 		break;
 	case CL_INVALID_WORK_ITEM_SIZE:
-		std::cerr << "CL_INVALID_WORK_ITEM_SIZE" << std::endl;
+		sstr << "CL_INVALID_WORK_ITEM_SIZE" << std::endl;
 		break;
 	case CL_MAP_FAILURE:
-		std::cerr << "CL_MAP_FAILURE" << std::endl;
+		sstr << "CL_MAP_FAILURE" << std::endl;
 		break;
 	case CL_MEM_OBJECT_ALLOCATION_FAILURE:
-		std::cerr << "CL_MEM_OBJECT_ALLOCATION_FAILURE" << std::endl;
+		sstr << "CL_MEM_OBJECT_ALLOCATION_FAILURE" << std::endl;
 		break;
 	case CL_MEM_COPY_OVERLAP:
-		std::cerr << "CL_MEM_COPY_OVERLAP" << std::endl;
+		sstr << "CL_MEM_COPY_OVERLAP" << std::endl;
 		break;
 	case CL_OUT_OF_HOST_MEMORY:
-		std::cerr << "CL_OUT_OF_HOST_MEMORY" << std::endl;
+		sstr << "CL_OUT_OF_HOST_MEMORY" << std::endl;
 		break;
 	case CL_OUT_OF_RESOURCES:
-		std::cerr << "CL_OUT_OF_RESOURCES" << std::endl;
+		sstr << "CL_OUT_OF_RESOURCES" << std::endl;
 		break;
 	case CL_PROFILING_INFO_NOT_AVAILABLE:
-		std::cerr << "CL_PROFILING_INFO_NOT_AVAILABLE" << std::endl;
+		sstr << "CL_PROFILING_INFO_NOT_AVAILABLE" << std::endl;
 		break;
 	}
-	exit(status);
+	throw std::runtime_error(sstr.str());
 }
 
 } /* namespace opencl */

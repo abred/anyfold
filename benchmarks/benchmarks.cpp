@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #include "measureTime.hpp"
 
@@ -87,9 +88,12 @@ int main(int argc, char *argv[])
 
 		uint64_t time = 0;
 		// OpenCL
+		try
+		{
 		for(int r = 0; r < rep; ++r)
 		{
 			using namespace anyfold::opencl;
+
 			timer.start();
 			switch(method)
 			{
@@ -121,8 +125,14 @@ int main(int argc, char *argv[])
 			timer.end();
 			time += timer.getNS();
 		}
+
 		std::cout << (float)time / 1000000000.0f / (float)rep << ";"
 		          << std::flush;
+		}
+		catch(std::runtime_error& e)
+		{
+			std::cerr << e.what() << std::flush;
+		}
 
 		// CPU
 		if(meas_cpu)
