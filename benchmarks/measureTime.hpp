@@ -20,20 +20,13 @@ public:
 	{
 		return std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
 	}
-	void print(bool longOutput = false)
+	void print()
 	{
-		if(longOutput)
-		{
-			std::cout << std::chrono::duration_cast<std::chrono::seconds>(endTime-startTime).count()
-			          << "."
-			          << std::chrono::duration_cast<std::chrono::milliseconds>(endTime-startTime).count();
-		}
-		else
-		{
-			std::cout << std::chrono::duration_cast<std::chrono::seconds>(endTime-startTime).count()
-			          << "."
-			          << std::chrono::duration_cast<std::chrono::milliseconds>(endTime-startTime).count();
-		}
+		auto t = std::chrono::duration_cast<std::chrono::milliseconds>(endTime-startTime) -
+		         std::chrono::duration_cast<std::chrono::seconds>(endTime-startTime);
+		std::cout << std::chrono::duration_cast<std::chrono::seconds>(endTime-startTime).count()
+		          << "."
+		          << t.count();
 	};
 
 private:
